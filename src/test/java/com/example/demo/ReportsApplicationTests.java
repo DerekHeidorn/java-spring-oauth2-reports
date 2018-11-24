@@ -14,6 +14,14 @@ public class ReportsApplicationTests {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	public MockMvc getMockMvc() {
+		return mockMvc;
+	}
+
+	public void setMockMvc(MockMvc mockMvc) {
+		this.mockMvc = mockMvc;
+	}
 	
 
 	

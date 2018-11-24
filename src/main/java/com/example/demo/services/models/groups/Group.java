@@ -1,4 +1,4 @@
-package com.example.demo.services;
+package com.example.demo.services.models.groups;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

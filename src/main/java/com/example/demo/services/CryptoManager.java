@@ -35,6 +35,7 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.services.exceptions.CryptoException;
@@ -47,7 +48,7 @@ public final class CryptoManager implements ApplicationContextAware {
 	private final static String PARAM_KEY_PAYLOAD = "p";
 	private final static String PARAM_KEY_MD5SUM = "m";
 	
-	public final static String WEB_ENCRYPTION_ALGORITHM_AES = "AES";  // /CBC/PKCS5Padding
+	public final static String DEFAULT_ENCRYPTION_ALGORITHM_AES = "AES";  // /CBC/PKCS5Padding
 
 	private Log log = LogFactory.getLog(this.getClass());
 	
@@ -56,8 +57,7 @@ public final class CryptoManager implements ApplicationContextAware {
 	private Base64 base64 = new Base64(0, new byte[]{}, true); // non-chunking, web safe base64				
 	
 	@Autowired
-	private CommonManager commonManager;
-
+	private Environment environment;
 
 	public CryptoManager() {
 		super();
@@ -83,18 +83,15 @@ public final class CryptoManager implements ApplicationContextAware {
 													    NoSuchPaddingException, 
 													    IllegalBlockSizeException, 
 													    BadPaddingException, IOException {
-		
-
-		CommonManager commonManager = getCommonManager(applicationContext);
         
-        String appSecretKey = commonManager.getConfigParamValue("app.aes.secret_key");
+        String appSecretKey = environment.getRequiredProperty("REPORT_APP_AES_SECRET_KEY");
         log.debug("appSecretKey=" + appSecretKey);
         
     	byte[] rawPassword = appSecretKey.getBytes();
     	key = new SecretKeySpec(rawPassword, "AES");
 		
 		if(key != null) {
-			log.info("Web layer encryption is enabled. Using " + WEB_ENCRYPTION_ALGORITHM_AES + " algorithm");
+			log.info("Web layer encryption is enabled. Using " + DEFAULT_ENCRYPTION_ALGORITHM_AES + " algorithm");
 		} else {
 			log.fatal("WEB LAYER ENCRYPTION IS DISABLED. Key = null");
 			throw new InvalidKeyException("Key is null");
@@ -194,7 +191,7 @@ public final class CryptoManager implements ApplicationContextAware {
     	
     	try { 
     	
-	        Cipher cipher = Cipher.getInstance(WEB_ENCRYPTION_ALGORITHM_AES);
+	        Cipher cipher = Cipher.getInstance(DEFAULT_ENCRYPTION_ALGORITHM_AES);
 	        cipher.init(Cipher.ENCRYPT_MODE, key);
 	    	byte[] encrypt = cipher.doFinal(input);  
 	    	
@@ -238,7 +235,7 @@ public final class CryptoManager implements ApplicationContextAware {
     	
     	try { 
     	
-	    	Cipher cipher = Cipher.getInstance(WEB_ENCRYPTION_ALGORITHM_AES);
+	    	Cipher cipher = Cipher.getInstance(DEFAULT_ENCRYPTION_ALGORITHM_AES);
 	    	cipher.init(Cipher.DECRYPT_MODE, this.key);
 	    	
 	    	//base64 decode
@@ -539,7 +536,7 @@ public final class CryptoManager implements ApplicationContextAware {
     
     public String MD5(String s) throws CryptoException{
     	try {
-			return MD5Util.MD5(SecurityConstants.MD5SUM_PASSWORD_GENERAL, s);
+			return MD5Util.MD5(environment.getRequiredProperty("REPORT_APP_MD5_SECRET_KEY"), s);
 		} catch (NoSuchAlgorithmException e) {
 			throw new CryptoException(e.getMessage());
 		} catch (UnsupportedEncodingException e) {
@@ -548,7 +545,7 @@ public final class CryptoManager implements ApplicationContextAware {
     }      
     
     public String MD5(String s, Class<?> clazz) throws CryptoException {
-    	return MD5(SecurityConstants.MD5SUM_PASSWORD_GENERAL, clazz, s);
+    	return MD5(environment.getRequiredProperty("REPORT_APP_MD5_SECRET_KEY"), clazz, s);
     }    
     
     public String MD5(String s, Class<?> clazz, String md5SumPassword) throws CryptoException {
@@ -777,17 +774,13 @@ public final class CryptoManager implements ApplicationContextAware {
 	public ApplicationContext getApplicationContext() {
 		return applicationContext;
 	}
-	
-	private CommonManager getCommonManager(ApplicationContext applicationContext) {
-		return (CommonManager) applicationContext.getBean("commonManager");
-	}
-	
-	public CommonManager getCommonManager() {
-		return commonManager;
+
+	public Environment getEnvironment() {
+		return environment;
 	}
 
-	public void setCommonManager(CommonManager commonManager) {
-		this.commonManager = commonManager;
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
 	}
 
 }

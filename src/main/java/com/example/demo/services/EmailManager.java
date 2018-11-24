@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -28,7 +29,7 @@ public class EmailManager {
 	private Log logger = LogFactory.getLog(this.getClass());
 	
 	@Autowired
-	private CommonManager commonManager;
+	private Environment environment;
 	
 	public boolean sendEmail(EmailData emailData) {
 
@@ -65,7 +66,7 @@ public class EmailManager {
 		if(sendTo.size() > 0 || sendCc.size() > 0 || sendBcc.size() > 0){
 			// if from is empty, sent default email
 			if (from == null) {
-				from = getCommonManager().getConfigParamValue("defaultESenderAddr");
+				from = environment.getRequiredProperty("REPORT_APP_EMAIL_DEFAULT_SENDER");
 			}		
 
 			/* ------------------------------------- */
@@ -183,7 +184,7 @@ public class EmailManager {
 		javaMailSenderImpl.setJavaMailProperties(jmProps);
 		javaMailSenderImpl.setPort(25);
 		
-		String host = getCommonManager().getConfigParamValue("smtp_host").trim();
+		String host = environment.getRequiredProperty("REPORT_APP_SMTP_HOST").trim();
 		javaMailSenderImpl.setHost(host);
 		
 		String port = getMailPort();
@@ -203,7 +204,7 @@ public class EmailManager {
 	}
 	
 	private String getMailPort(){
-		String port = getCommonManager().getConfigParamValue("smtp_port");
+		String port = environment.getRequiredProperty("REPORT_APP_SMTP_PORT");
 		if(StringUtils.isNotBlank(port)){
 			return port.trim();
 		}
@@ -254,13 +255,13 @@ public class EmailManager {
 			return emailList.toArray(new String[0]);
 		}
 	}
-	
-	public CommonManager getCommonManager() {
-		return commonManager;
+
+	public Environment getEnvironment() {
+		return environment;
 	}
 
-	public void setCommonManager(CommonManager commonManager) {
-		this.commonManager = commonManager;
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
 	}
 	
 }

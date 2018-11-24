@@ -19,7 +19,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.persist.ReportDao;
 import com.example.demo.services.utils.Mime;
 import com.example.demo.services.utils.Report;
 import com.example.demo.services.utils.ReportCriteria;
@@ -45,8 +44,7 @@ public class ReportManager {
 	
 	final public static int ZIP_COMPRESSION_THRESHOLD_BYTES = 2000000;// After 2meg, compress the data 
 	
-	@Autowired
-	private ReportDao reportDao;
+
 	
 	@Autowired
 	private ExternalGroupManager externalGroupManager;
@@ -356,14 +354,6 @@ public class ReportManager {
     	}
     	return (outputStream == null)? null : outputStream.toByteArray();
     }
-
-	public ReportDao getReportDao() {
-		return reportDao;
-	}
-
-	public void setReportDao(ReportDao reportDao) {
-		this.reportDao = reportDao;
-	}
 
 	public ExternalGroupManager getExternalGroupManager() {
 		return externalGroupManager;

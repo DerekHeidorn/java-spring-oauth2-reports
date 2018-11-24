@@ -1,7 +1,4 @@
-package com.example.demo.services;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.lang.Nullable;
+package com.example.demo.services.models.groups;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
