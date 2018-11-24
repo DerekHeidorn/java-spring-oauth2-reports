@@ -39,7 +39,7 @@ public class CommonDao extends JdbcDaoSupport {
 		if (tbConfig != null) {
 			String value = tbConfig.getValue();
 
-			return value;
+			return value.trim();
 		} else {
 			return null;
 		}

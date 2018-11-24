@@ -19,7 +19,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.models.TbGroup;
 import com.example.demo.persist.ReportDao;
 import com.example.demo.services.utils.Mime;
 import com.example.demo.services.utils.Report;
@@ -48,6 +47,9 @@ public class ReportManager {
 	
 	@Autowired
 	private ReportDao reportDao;
+	
+	@Autowired
+	private ExternalGroupManager externalGroupManager;
 	
 	public static enum ReportProcessType { 
 
@@ -92,11 +94,11 @@ public class ReportManager {
     public static enum ReportType {
 
 		// campground reports
-    	REPORT_GROUPS("USER_GROUPS" ,"User Groups", "TPCG0001_Daily", new String[] {"CUST_RPT_UNSUB", "CUST_RPT_SUB", "CUST_RPT_GRP_SUB"}),
+    	REPORT_GROUPS("USER_GROUPS" ,"User Groups", "user_group", new String[] {"CUST_RPT_UNSUB", "CUST_RPT_SUB", "CUST_RPT_GRP_SUB"}),
     	REPORT_MEMBERS("USER_GROUP_DETAILS" ,"User Group Details", "TPCG0001_Daily", new String[] {"CUST_RPT_SUB", "CUST_RPT_GRP_SUB"}),
     	REPORT_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Member Details", "TPCG0001_Daily", new String[] {"CUST_RPT_GRP_SUB"});
 
-    	private static final String reportPath = "/report/";
+    	private static final String reportPath = "/reports/";
     	
     	private String reportCd;
     	private String title;
@@ -214,8 +216,9 @@ public class ReportManager {
 	}
 	
 	public JRDataSource getGroups(Map<String, Object> map) {
+		
+		List<?> groups = (List<?>) map.get("_DATA");
 
-    	List<TbGroup> groups = reportDao.getTbGroups();
 
     	JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(groups);
     	return ds;
@@ -252,7 +255,7 @@ public class ReportManager {
                 }
             }
             catch (IOException ioe) {
-                System.out.println("Error while closing stream: " + ioe);
+            	logger.error("Error while closing stream: " + ioe);
             }
  
         }
@@ -359,5 +362,13 @@ public class ReportManager {
 
 	public void setReportDao(ReportDao reportDao) {
 		this.reportDao = reportDao;
+	}
+
+	public ExternalGroupManager getExternalGroupManager() {
+		return externalGroupManager;
+	}
+
+	public void setExternalGroupManager(ExternalGroupManager externalGroupManager) {
+		this.externalGroupManager = externalGroupManager;
 	}
 }

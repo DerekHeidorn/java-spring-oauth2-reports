@@ -47,13 +47,12 @@ public final class CryptoManager implements ApplicationContextAware {
 	private final static String PARAM_KEY_PAYLOAD = "p";
 	private final static String PARAM_KEY_MD5SUM = "m";
 	
-	public final static String WEB_ENCRYPTION_ALGORITHM_AES = "AES";
+	public final static String WEB_ENCRYPTION_ALGORITHM_AES = "AES";  // /CBC/PKCS5Padding
 
 	private Log log = LogFactory.getLog(this.getClass());
 	
 	private ApplicationContext applicationContext; 
 	private SecretKey key = null;
-	private static String WEB_ENCRYPTION_ALGORITHM = WEB_ENCRYPTION_ALGORITHM_AES;
 	private Base64 base64 = new Base64(0, new byte[]{}, true); // non-chunking, web safe base64				
 	
 	@Autowired
@@ -88,14 +87,14 @@ public final class CryptoManager implements ApplicationContextAware {
 
 		CommonManager commonManager = getCommonManager(applicationContext);
         
-        String appSecretKey = commonManager.getConfigParamValue("app.secret_key");
+        String appSecretKey = commonManager.getConfigParamValue("app.aes.secret_key");
         log.debug("appSecretKey=" + appSecretKey);
         
     	byte[] rawPassword = appSecretKey.getBytes();
     	key = new SecretKeySpec(rawPassword, "AES");
 		
 		if(key != null) {
-			log.info("Web layer encryption is enabled. Using " + WEB_ENCRYPTION_ALGORITHM + " algorithm");
+			log.info("Web layer encryption is enabled. Using " + WEB_ENCRYPTION_ALGORITHM_AES + " algorithm");
 		} else {
 			log.fatal("WEB LAYER ENCRYPTION IS DISABLED. Key = null");
 			throw new InvalidKeyException("Key is null");
@@ -195,7 +194,7 @@ public final class CryptoManager implements ApplicationContextAware {
     	
     	try { 
     	
-	        Cipher cipher = Cipher.getInstance(WEB_ENCRYPTION_ALGORITHM);
+	        Cipher cipher = Cipher.getInstance(WEB_ENCRYPTION_ALGORITHM_AES);
 	        cipher.init(Cipher.ENCRYPT_MODE, key);
 	    	byte[] encrypt = cipher.doFinal(input);  
 	    	
@@ -239,7 +238,7 @@ public final class CryptoManager implements ApplicationContextAware {
     	
     	try { 
     	
-	    	Cipher cipher = Cipher.getInstance(WEB_ENCRYPTION_ALGORITHM);
+	    	Cipher cipher = Cipher.getInstance(WEB_ENCRYPTION_ALGORITHM_AES);
 	    	cipher.init(Cipher.DECRYPT_MODE, this.key);
 	    	
 	    	//base64 decode

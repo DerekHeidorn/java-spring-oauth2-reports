@@ -84,7 +84,6 @@ public class TestTokenAuthenticationHelper {
     	} catch(Exception e) {
     		
     	}
-    	System.err.println("base64=" + base64);
     	UUID uuid = UUID.randomUUID();
         String randomUUIDString = uuid.toString();
     	

@@ -343,7 +343,6 @@ public class StringUtil {
     	Pattern p = Pattern.compile(ALPHANUMERIC_ONLY, Pattern.CASE_INSENSITIVE);
     	Matcher m = p.matcher(s);
     	boolean b = m.matches();
-    	//System.err.println("s= " + s + " a-z0-9= " + b);
     	return b;
     }
 

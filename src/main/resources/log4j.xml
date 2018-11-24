@@ -1,78 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<!DOCTYPE log4j:configuration SYSTEM 
+          "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-
-	<!-- Developer Configuration -->
-    <appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
-		<layout class="org.apache.log4j.PatternLayout"> 
-		  <param name="ConversionPattern" value="[%d{HH:mm:ss z MM.dd.yyyy}]%-5p [%t] %m  [%l]%n"/> 
-		</layout> 
+	<appender name="Appender1" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-7p %d [%t] %c %x - %m%n" />
+		</layout>
 	</appender>
-
-    <appender name="AppGeneralInfoFileAppender" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="/crrsLogs/app/crrsApiGeneral.log" />     
-        <param name="Append" value="true"/>
-        <param name="maxFileSize" value="10MB"/>
-        <param name="MaxBackupIndex" value="40"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="[%d{HH:mm:ss z MM.dd.yyyy}]%-5p [%t] %m  [%l]%n"/>
-        </layout>       
-		<filter class="org.apache.log4j.varia.LevelRangeFilter">
-			<param name="LevelMin" value="DEBUG" />
-			<param name="LevelMax" value="WARN" />
-		</filter>               
-     </appender>
-    <appender name="AppUserInfoFileAppender" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="/crrsLogs/app/crrsUserGeneral.log" />     
-        <param name="Append" value="true"/>
-        <param name="maxFileSize" value="10MB"/>
-        <param name="MaxBackupIndex" value="40"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="[%d{HH:mm:ss z MM.dd.yyyy}]%-5p [%t] %m  [%l]%n"/>
-        </layout>       
-		<filter class="org.apache.log4j.varia.LevelRangeFilter">
-			<param name="LevelMin" value="DEBUG" />
-			<param name="LevelMax" value="WARN" />
-		</filter>               
-     </appender>	 
-    <appender name="AppReportInfoFileAppender" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="/crrsLogs/app/crrsApiReports.log" />     
-        <param name="Append" value="true"/>
-        <param name="maxFileSize" value="10MB"/>
-        <param name="MaxBackupIndex" value="40"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="[%d{HH:mm:ss z MM.dd.yyyy}]%-5p [%t] %m  [%l]%n"/>
-        </layout>       
-		<filter class="org.apache.log4j.varia.LevelRangeFilter">
-			<param name="LevelMin" value="INFO" />
-			<param name="LevelMax" value="WARN" />
-		</filter>               
-     </appender>	 
-	 
-    <appender name="AppErrorFileAppender" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="/crrsLogs/app/crrsApiError.log" />    
-        <param name="Append" value="true"/>
-        <param name="maxFileSize" value="10MB"/>
-        <param name="MaxBackupIndex" value="40"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="[%d{HH:mm:ss z MM.dd.yyyy}]%-5p [%t] %m  [%l]%n"/>
-        </layout>
-		<filter class="org.apache.log4j.varia.LevelRangeFilter">
-			<param name="LevelMin" value="ERROR" />
-			<param name="LevelMax" value="FATAL" />
-		</filter>                   
-     </appender>
-     
-	<logger name="com.example">
-	  <level value="DEBUG"/> 
-	</logger>
-	
-
+	<appender name="Appender2" class="org.apache.log4j.FileAppender">
+		<param name="File" value="./report-app/logs/springmvc.log" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-7p %d [%t] %c %x - %m%n" />
+		</layout>
+	</appender>
 	<root>
-		<priority value="debug" />
-		<appender-ref ref="ConsoleAppender"/>
+		<level value="DEBUG" />
+		<appender-ref ref="Appender1" />
+		<appender-ref ref="Appender2" />
 	</root>
-
-
 </log4j:configuration>
-

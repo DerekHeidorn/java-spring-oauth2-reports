@@ -1,7 +1,6 @@
 package com.example.demo.web.api;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -9,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,12 +27,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.configuration.WebConfiguration;
 import com.example.demo.services.CryptoManager;
 import com.example.demo.services.EmailManager;
+import com.example.demo.services.ExternalGroupManager;
+import com.example.demo.services.Group;
 import com.example.demo.services.ReportManager;
 import com.example.demo.services.ReportManager.ReportOutputType;
 import com.example.demo.services.ReportManager.ReportProcessType;
@@ -56,8 +56,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 public class ReportController {
 	
-	protected final transient Log log = LogFactory.getLog(getClass());	
+	protected final transient Log logger = LogFactory.getLog(getClass());	
 
+	@Autowired
+	private ExternalGroupManager externalGroupManager;
+	
 	@Autowired
 	private ReportManager reportManager;
 	
@@ -68,8 +71,13 @@ public class ReportController {
 	private CryptoManager cryptoManager;
 
     @RequestMapping(value = "/api/v1.0/public/report/list", method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('CUST_ACCESS') and hasAuthority('CUST_RPT_UNSUB')")
-    public ResponseEntity<RestApiResponse> getPublicReportList() {
+    @PreAuthorize("hasAuthority('CUST_ACCESS')")
+    public ResponseEntity<RestApiResponse> getPublicReportList(HttpServletRequest request) {
+    	
+    	String bearerToken = request.getHeader("Authorization");
+    	logger.debug("bearerToken=" + bearerToken);
+
+    	
     	
     	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     	Collection<? extends GrantedAuthority>  authorities = authentication.getAuthorities();
@@ -95,105 +103,75 @@ public class ReportController {
 		r.setData(returnList);
 		return new ResponseEntity<RestApiResponse>(r, HttpStatus.OK);
     }
-	
-    @RequestMapping(value = "/username", method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('CUST_ACCESS')")
-    @ResponseBody
-    public String currentUserName(Principal principal) {
-    	
-    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    	if (!(authentication instanceof AnonymousAuthenticationToken)) {
-    	    String currentUserName = authentication.getName();
-    	    return currentUserName;
-    	}
-    	
-        return null;
-    }
-    
-    @RequestMapping(value = "/altusername", method = RequestMethod.GET)
-    @ResponseBody
-    public String currentAltUserName(Authentication authentication) {
-        return authentication.getName();
-    }
-	
-	@RequestMapping("/api/v1.0/user")
-	@PreAuthorize("hasAuthority('CUST_ACCESS')")
-	public ResponseEntity<RestApiResponse> userProtected() {
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		
-		RestApiResponse r = new RestApiResponse();
-		r.setData(authentication);
-		return new ResponseEntity<RestApiResponse>(r, HttpStatus.OK);
-	}
     
 	@Transactional(readOnly = true)
-	@RequestMapping(value = "/public/reports/create/{key}", headers="Accept=*/*", method = RequestMethod.OPTIONS, produces={"application/pdf", "text/csv", "application/json"}) 
+	@RequestMapping(value = "/api/v1.0/public/reports/create/{key}", headers="Accept=*/*", method = RequestMethod.OPTIONS, produces={"application/pdf", "text/csv", "application/json"}) 
 	public ResponseEntity<String>  optionsGenerateReportWithKey(@PathVariable String key, HttpServletResponse response) {
 		response.setHeader("Allow", "GET,OPTIONS");
 	    return new ResponseEntity<String>(HttpStatus.OK);
 	}
 	
 	@Transactional(readOnly = true)
-	@RequestMapping(value = "/public/reports/create/{key}", headers="Accept=*/*", method = RequestMethod.GET, produces={"application/pdf", "text/csv", "application/json"})
-	public void generateReportWithKey(@PathVariable String key, @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
+	@RequestMapping(value = "/api/v1.0/public/reports/create/{key}", headers="Accept=*/*", method = RequestMethod.GET, produces={"application/pdf", "text/csv", "application/json"})
+	public void generateReportWithKey(HttpServletRequest request, @PathVariable String key, @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
 		
+		String bearerToken = request.getHeader("Authorization");
 		Map<String,String> map = cryptoManager.decryptMap(key);
-		String userUuid = map.get("userUuid");
+//		String userUuid = map.get("userUuid");
 		String timeString = map.get("time");	
-		String reportName = map.get("reportName");
+		String reportCd = reportCriteriaRequest.getReportCd();
 		
 		Long timeLong = new Long(timeString);
 		Date reportRunDate = new Date(timeLong);
 		
-		if(log.isDebugEnabled()) {
-			log.debug("userUuid=" + userUuid);
-			log.debug("timeString=" + timeString);
-			log.debug("reportRunDate=" + reportRunDate);
-			log.debug("reportName=" + reportName);
-			log.debug("reportCriteriaRequest=" + reportCriteriaRequest);
+		if(logger.isDebugEnabled()) {
+//			logger.debug("userUuid=" + userUuid);
+			logger.debug("timeString=" + timeString);
+			logger.debug("reportRunDate=" + reportRunDate);
+			logger.debug("reportCd=" + reportCd);
+			logger.debug("reportCriteriaRequest=" + reportCriteriaRequest);
 		}
 
 		Date yesterday = DateUtils.addHours(new Date(), -24);
 		boolean within24Hours = reportRunDate.after(yesterday);
 
 		 // only comparing staff userId, reportName and ran within 24 hours
-		if(reportName.equals(reportCriteriaRequest.getReportName()) && within24Hours) {
-			generateReportInternal(reportCriteriaRequest, response, false);
+		if(reportCd.equals(reportCriteriaRequest.getReportCd()) && within24Hours) {
+			generateReportInternal(bearerToken, reportCriteriaRequest, response, false);
 		} else {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);	
 		}
 	}
 	
 	@Transactional(readOnly = true)
-	@RequestMapping(value = "/public/reports/create", headers="Accept=*/*", method = RequestMethod.OPTIONS, produces={"application/pdf", "text/csv", "application/json"}) 
+	@RequestMapping(value = "/api/v1.0/public/reports/create", headers="Accept=*/*", method = RequestMethod.OPTIONS, produces={"application/pdf", "text/csv", "application/json"}) 
 	public ResponseEntity<String>  optionsGenerateReport(HttpServletResponse response) {
 		response.setHeader("Allow", "POST,OPTIONS");
 	    return new ResponseEntity<String>(HttpStatus.OK);
 	}	
 	
 	@Transactional(readOnly = true)
-	@RequestMapping(value = "/public/reports/create", headers="Accept=*/*", method = RequestMethod.POST, produces={"application/pdf", "text/csv", "application/json"})
-	@PreAuthorize("#oauth2.hasScope('admin') and hasAuthority('ADM_RPTS')")
-	public void generateReport(@RequestBody @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
-		generateReportInternal(reportCriteriaRequest, response, true);
+	@RequestMapping(value = "/api/v1.0/public/reports/create", headers="Accept=*/*", method = RequestMethod.POST, produces={"application/pdf", "text/csv", "application/json"})
+	@PreAuthorize("hasAuthority('CUST_ACCESS')")
+	public void generateReport(HttpServletRequest request, @RequestBody @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
+		String bearerToken = request.getHeader("Authorization");
+		generateReportInternal(bearerToken, reportCriteriaRequest, response, true);
 	}
 	
 	
 	private String generateEncryptedKey(DtoReportCriteriaRequest reportCriteriaRequest) throws CryptoException {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		log.debug(authentication);
 		Object principal = authentication.getPrincipal();
-		log.debug(principal);
 		
-//		User user = UserUtil.getCurrentUser();
-		Integer userId = 1;
+		logger.debug("authentication=" + authentication);
+		logger.debug("principal=" + principal);
+		logger.debug("authentication.getName()=" + authentication.getName());
 
 		Map<String,String> map = new HashMap<String,String>();
-		map.put("userUuid", userId.toString()); // TODO get UUID from token
-		map.put("reportName", reportCriteriaRequest.getReportName());
+		//map.put("userUuid", authentication.getName()); // TODO get UUID from token
+		map.put("reportCd", reportCriteriaRequest.getReportCd());
 		map.put("time", "" + new Date().getTime()); // just to make the key unique.
 		
 		String key = cryptoManager.encryptMap(map);
@@ -202,10 +180,10 @@ public class ReportController {
 		
 	}	
 	
-	private void generateReportInternal(DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response, boolean responseWithKey) throws IOException, CryptoException {
+	private void generateReportInternal(String bearerToken, DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response, boolean responseWithKey) throws IOException, CryptoException {
 		
-		ReportCriteria reportCriteria = getReportCriteria(reportCriteriaRequest);
-		log.debug("*** reportCriteria: " + reportCriteria);
+		ReportCriteria reportCriteria = getReportCriteria(bearerToken, reportCriteriaRequest);
+		logger.debug("*** reportCriteria: " + reportCriteria);
 		
 		ReportProcessType reportProcessType = getReportProcessType(reportCriteriaRequest);
 		
@@ -238,7 +216,7 @@ public class ReportController {
 
 				
 				String fileType = getReportOutputType(reportCriteriaRequest).getMimeType().getExtension().toUpperCase();
-				log.debug("fileType=" + fileType);
+				logger.debug("fileType=" + fileType);
 				
 				RestApiResponse r = new RestApiResponse();
 				// r.addGlobalInfoMsg(getMessage(messageSource, "admin.reports.file.sent", new String[]{fileType}));  TODO			
@@ -260,8 +238,8 @@ public class ReportController {
 
 		} else {
 			
-			if(log.isDebugEnabled()) {
-				log.debug(reportCriteria);
+			if(logger.isDebugEnabled()) {
+				logger.debug(reportCriteria);
 			}
 			
 			
@@ -285,9 +263,9 @@ public class ReportController {
 					
 				} else {
 				
-					if(log.isDebugEnabled()) {
-						log.debug(report);
-					}
+//					if(logger.isDebugEnabled()) {
+						logger.info(report);
+//					}
 
 					Mime.TYPE mimeType = report.getMimeType();
 					byte[] contents = report.getData();
@@ -329,13 +307,28 @@ public class ReportController {
 		response.getOutputStream().write(printBytes);			
 	}
 	
-	private ReportCriteria getReportCriteria(DtoReportCriteriaRequest c) {
+	private ReportCriteria getReportCriteria(String bearerToken, DtoReportCriteriaRequest c) {
 		
-		ReportCriteria reportCriteria = null;
+		if (ReportType.REPORT_GROUPS.getReportCd().equals(c.getReportCd())) {   
+			Group[] groups = externalGroupManager.getGroups(bearerToken);
+			List<Group> list = new ArrayList<>(groups.length);
+			for(Group g: groups) {
+				list.add(g);
+			}
+			
+			// ReportType reportType, ReportOutputType reportOutputType, Date reportDate
+			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_GROUPS, getReportOutputType(c), new Date());  // TODO
+			reportCriteria.getMap().put("_DATA", list);
+			return reportCriteria;
+		}
+		
+
+		
+		
 		
 		// TODO
 		
-		return reportCriteria;
+		return null;
     }
 	
 	private ReportOutputType getReportOutputType(DtoReportCriteriaRequest c) {
