@@ -23,6 +23,8 @@ public class TestTokenAuthenticationHelper {
 	public final static String DEFAULT_PUBLIC_UUID = "c95802ac-e465-11e8-9f32-f2801f1b9fd1";  // Joe.Customer@foo.com.invali
 	public final static String DEFAULT_PUBLIC_CLIENT_ID = "CLTID-Zeq1LRso5q-iLU9RKCKnu";
 	
+	public final static String DEFAULT_ADMIN_UUID = "c957fece-e465-11e8-9f32-f2801f1b9fd1";  // sys.admin@foo.com.invali
+	
     static final long EXPIRATIONTIME = 24 * 60 * 60; // 1 day
     static final String SECRET = "BMcrqdcd7QeEmR8CXyU";
     static final String TOKEN_PREFIX = "Bearer";
@@ -55,7 +57,7 @@ public class TestTokenAuthenticationHelper {
     public static String createDefaultPublicUnsubcribedToken() {
 		List<String> authorities = new ArrayList<>();
 		authorities.add("CUST_ACCESS");
-		authorities.add("CUST_RPT_UNSUB");
+		authorities.add("CUST_RPT");
 		
     	return createToken(DEFAULT_PUBLIC_UUID, authorities);
     }
@@ -63,6 +65,7 @@ public class TestTokenAuthenticationHelper {
     public static String createDefaultPublicSubcribedToken() {
 		List<String> authorities = new ArrayList<>();
 		authorities.add("CUST_ACCESS");
+		authorities.add("CUST_RPT");
 		authorities.add("CUST_RPT_SUB");
 		
     	return createToken(DEFAULT_PUBLIC_UUID, authorities);
@@ -71,9 +74,19 @@ public class TestTokenAuthenticationHelper {
     public static String createDefaultPublicGroupSubcribedToken() {
 		List<String> authorities = new ArrayList<>();
 		authorities.add("CUST_ACCESS");
+		authorities.add("CUST_RPT");
+		authorities.add("CUST_RPT_SUB");
 		authorities.add("CUST_RPT_GROUP_SUB");
 		
     	return createToken(DEFAULT_PUBLIC_UUID, authorities);
+    }
+    
+    public static String createDefaultAdmniToken() {
+		List<String> authorities = new ArrayList<>();
+		authorities.add("ADM_ACCESS");
+		authorities.add("ADM_RPT");
+		
+    	return createToken(DEFAULT_ADMIN_UUID, authorities);
     }
     
     public static String createToken(String userUuid, List<String> authorities) {

@@ -4,6 +4,8 @@ import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,11 +16,17 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ExternalGroupManager {
-	protected final transient Log logger = LogFactory.getLog(getClass());	
 	
+	protected final transient Log logger = LogFactory.getLog(getClass());
 	
+	@Autowired
+	private Environment environment;
 
 	public Group[] getGroups(String bearerToken) {
+		
+		String groupApiUrl = environment.getRequiredProperty("REPORT_APP_GROUP_API_URL_V1");
+		logger.info("groupApiUrl=" + groupApiUrl);
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -27,7 +35,7 @@ public class ExternalGroupManager {
 		HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
 		RestTemplate restTemplate = new RestTemplate();
 
-		ResponseEntity<ResponseWrapper> respEntity = restTemplate.exchange("http://127.0.0.1:9001/api/v1.0/public/group", HttpMethod.GET, entity, ResponseWrapper.class);
+		ResponseEntity<ResponseWrapper> respEntity = restTemplate.exchange(groupApiUrl + "/public/group", HttpMethod.GET, entity, ResponseWrapper.class);
 
 		ResponseWrapper groupResponse = respEntity.getBody();
 
@@ -38,6 +46,18 @@ public class ExternalGroupManager {
         }
         
         return groupResponse.getData();
+	}
+
+
+
+	public Environment getEnvironment() {
+		return environment;
+	}
+
+
+
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
 	}
 	
 }

@@ -309,7 +309,7 @@ public class ReportController {
 	
 	private ReportCriteria getReportCriteria(String bearerToken, DtoReportCriteriaRequest c) {
 		
-		if (ReportType.REPORT_GROUPS.getReportCd().equals(c.getReportCd())) {   
+		if (ReportType.REPORT_USER_GROUPS.getReportCd().equals(c.getReportCd())) {   
 			Group[] groups = externalGroupManager.getGroups(bearerToken);
 			List<Group> list = new ArrayList<>(groups.length);
 			for(Group g: groups) {
@@ -317,7 +317,7 @@ public class ReportController {
 			}
 			
 			// ReportType reportType, ReportOutputType reportOutputType, Date reportDate
-			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_GROUPS, getReportOutputType(c), new Date());  // TODO
+			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUPS, getReportOutputType(c), new Date());  // TODO
 			reportCriteria.getMap().put("_DATA", list);
 			return reportCriteria;
 		}

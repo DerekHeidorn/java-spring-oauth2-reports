@@ -94,9 +94,10 @@ public class ReportManager {
     public static enum ReportType {
 
 		// campground reports
-    	REPORT_GROUPS("USER_GROUPS" ,"User Groups", "user_group", new String[] {"CUST_RPT_UNSUB", "CUST_RPT_SUB", "CUST_RPT_GRP_SUB"}),
-    	REPORT_MEMBERS("USER_GROUP_DETAILS" ,"User Group Details", "TPCG0001_Daily", new String[] {"CUST_RPT_SUB", "CUST_RPT_GRP_SUB"}),
-    	REPORT_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Member Details", "TPCG0001_Daily", new String[] {"CUST_RPT_GRP_SUB"});
+    	REPORT_USER_GROUPS("USER_GROUPS" ,"Active User Groups", "user_groups", new String[] {"CUST_RPT_UNSUB", "CUST_RPT_SUB", "CUST_RPT_GRP_SUB"}),
+    	REPORT_GROUPS("GROUPS" ,"All Public Groups", "groups", new String[] {"CUST_RPT_SUB", "CUST_RPT_GRP_SUB", "ADM_RPT"}),
+    	REPORT_USER_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Membership Details", "group_memberships", new String[] {"CUST_RPT_GRP_SUB", "ADM_RPT"}),
+    	REPORT_ADMIN_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Membership Details", "group_memberships", new String[] {"ADM_RPT"});
 
     	private static final String reportPath = "/reports/";
     	
@@ -201,7 +202,7 @@ public class ReportManager {
 
 		try{
 
-			if (ReportType.REPORT_GROUPS.equals(reportCriteria.getReportType())){
+			if (ReportType.REPORT_USER_GROUPS.equals(reportCriteria.getReportType())){
 				reportSource = new ReportSource(reportCriteria.getReportType(), getGroups(reportCriteria.getMap()));
 			}
 

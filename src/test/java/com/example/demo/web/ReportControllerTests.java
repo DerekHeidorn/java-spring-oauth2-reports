@@ -1,5 +1,6 @@
 package com.example.demo.web;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -108,7 +109,7 @@ public class ReportControllerTests extends AbstractControllerTest {
 		
 		ra.andExpect(status().isOk());
 		
-		ra.andExpect(jsonPath("data[0].itemId").value(ReportManager.ReportType.REPORT_GROUPS.getReportCd()));
+		ra.andExpect(jsonPath("data[0].itemId").value(ReportManager.ReportType.REPORT_USER_GROUPS.getReportCd()));
 		ra.andExpect(jsonPath("data[1].itemId").doesNotExist());
 		
 	}
@@ -127,7 +128,7 @@ public class ReportControllerTests extends AbstractControllerTest {
 
     	
     	DtoReportCriteriaRequest reportCriteriaRequest = new DtoReportCriteriaRequest();
-    	reportCriteriaRequest.setReportCd(ReportManager.ReportType.REPORT_GROUPS.getReportCd());
+    	reportCriteriaRequest.setReportCd(ReportManager.ReportType.REPORT_USER_GROUPS.getReportCd());
     	reportCriteriaRequest.setStartDt(DateUtils.addDays(new Date(), -10));
     	reportCriteriaRequest.setEndDt(DateUtils.addDays(new Date(), -5));
     	reportCriteriaRequest.setReportOutputType(ReportOutputType.RPT_OUTPUT_TYPE_PDF.getMimeType().getExtension());
@@ -167,7 +168,7 @@ public class ReportControllerTests extends AbstractControllerTest {
         String reportKey = JsonPath.read(content, "data.key");
         
         // /api/v1.0/public/reports/create/{key}
-        String uri = "/api/v1.0/public/reports/create/" + reportKey + "?reportCd=" + ReportManager.ReportType.REPORT_GROUPS.getReportCd()
+        String uri = "/api/v1.0/public/reports/create/" + reportKey + "?reportCd=" + ReportManager.ReportType.REPORT_USER_GROUPS.getReportCd()
          + "&reportOutputType=" + ReportOutputType.RPT_OUTPUT_TYPE_PDF.getMimeType().getExtension()
          + "&reportProcessType=" + ReportManager.ReportProcessType.RPT_PROCESS_TYPE_HTTP.getCode();
         
@@ -177,11 +178,16 @@ public class ReportControllerTests extends AbstractControllerTest {
 								.header("Authorization", "bearer " + token)
 								.accept(MediaType.parseMediaType("application/pdf"))
 								)
-        						.andDo(print());
+        						// .andDo(print())
+        						;
         mvcResult = ra.andReturn();
         
         byte[] pdf = mvcResult.getResponse().getContentAsByteArray();
-        FileUtils.writeByteArrayToFile(new File("sample.pdf"), pdf);
+        assertNotNull(pdf);
+        String tempFilePath = System.getProperty("java.io.tmpdir") + "sample.pdf";
+        assertNotNull(tempFilePath);
+        log.info("tempFilePath=" + tempFilePath);
+        FileUtils.writeByteArrayToFile(new File(tempFilePath), pdf);
     	
     	// 
 

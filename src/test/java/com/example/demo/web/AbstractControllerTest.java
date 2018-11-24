@@ -21,6 +21,10 @@ public class AbstractControllerTest {
 	
 	protected final transient Log log = LogFactory.getLog(getClass());	
 
+    static {
+        System.setProperty("REPORT_APP_GROUP_API_URL_V1", "http://127.0.0.1:9001/api/v1.0");
+    }
+	
 	final protected static MediaType DEFAULT_CONTENT_TYPE = new MediaType(MediaType.APPLICATION_JSON.getType(),
 			MediaType.APPLICATION_JSON.getSubtype());
 	
