@@ -1,6 +1,7 @@
-package com.example.demo.services.utils;
+package com.example.demo.services.reports;
 
 import com.example.demo.services.ReportManager.ReportType;
+import com.example.demo.services.utils.Mime;
 
 public final class Report {
 

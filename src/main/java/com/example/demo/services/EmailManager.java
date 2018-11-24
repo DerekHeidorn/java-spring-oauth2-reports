@@ -32,10 +32,6 @@ public class EmailManager {
 	private Environment environment;
 	
 	public boolean sendEmail(EmailData emailData) {
-
-//		if(logger.isDebugEnabled()) {
-//			logger.debug("tbNtfn" + tbNtfn);
-//		}
 		
 		boolean delivered = false;
 		

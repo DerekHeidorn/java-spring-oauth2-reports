@@ -19,10 +19,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.services.reports.Report;
+import com.example.demo.services.reports.ReportCriteria;
+import com.example.demo.services.reports.ReportSource;
 import com.example.demo.services.utils.Mime;
-import com.example.demo.services.utils.Report;
-import com.example.demo.services.utils.ReportCriteria;
-import com.example.demo.services.utils.ReportSource;
 import com.example.demo.services.utils.StringUtil;
 import com.lowagie.text.pdf.PdfWriter;
 
