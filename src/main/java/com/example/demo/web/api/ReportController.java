@@ -40,7 +40,9 @@ import com.example.demo.services.ReportManager.ReportType;
 import com.example.demo.services.exceptions.CryptoException;
 import com.example.demo.services.models.groups.Group;
 import com.example.demo.services.reports.Report;
-import com.example.demo.services.reports.ReportCriteria;
+import com.example.demo.services.reports.input.GroupReportInput;
+import com.example.demo.services.reports.input.ReportCriteria;
+import com.example.demo.services.reports.input.ReportInput;
 import com.example.demo.services.utils.EmailData;
 import com.example.demo.services.utils.Mime;
 import com.example.demo.web.dtos.DtoReportCriteriaRequest;
@@ -182,19 +184,19 @@ public class ReportController {
 	
 	private void generateReportInternal(String bearerToken, DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response, boolean responseWithKey) throws IOException, CryptoException {
 		
-		ReportCriteria reportCriteria = getReportCriteria(bearerToken, reportCriteriaRequest);
-		logger.debug("*** reportCriteria: " + reportCriteria);
+		ReportInput reportInput = getReportCriteria(bearerToken, reportCriteriaRequest);
+		logger.debug("*** reportCriteria: " + reportInput);
 		
 		ReportProcessType reportProcessType = getReportProcessType(reportCriteriaRequest);
 		
 		if(ReportProcessType.RPT_PROCESS_TYPE_HTTP.name().equals(reportProcessType.name())) { 
 			
 			// put report criteria in the session for the report servlet to pick it up
-			generateReportInternal(reportCriteriaRequest, reportCriteria, response, responseWithKey);					
+			generateReportInternal(reportCriteriaRequest, reportInput, response, responseWithKey);					
 			
 		} else if(ReportProcessType.RPT_PROCESS_TYPE_EMAIL.name().equals(reportProcessType.name())) { 
 				
-			Report report = this.getReportManager().generateReport(reportCriteria);
+			Report report = this.getReportManager().generateReport(reportInput);
 			
 			if(report.getHasError()) {
 				
@@ -226,9 +228,9 @@ public class ReportController {
 		} 	
 	}
 
-	private void generateReportInternal(DtoReportCriteriaRequest reportCriteriaRequest, ReportCriteria reportCriteria, HttpServletResponse response, boolean responseWithKey) throws IOException, CryptoException {  
+	private void generateReportInternal(DtoReportCriteriaRequest reportCriteriaRequest, ReportInput reportInput, HttpServletResponse response, boolean responseWithKey) throws IOException, CryptoException {  
 		
-		if (reportCriteria == null) {
+		if (reportInput == null) {
 			
 			// give an error message when the reportCriteria is null, most likely their session timed out.
 			RestApiResponse r = new RestApiResponse();
@@ -239,7 +241,7 @@ public class ReportController {
 		} else {
 			
 			if(logger.isDebugEnabled()) {
-				logger.debug(reportCriteria);
+				logger.debug(reportInput);
 			}
 			
 			
@@ -253,7 +255,7 @@ public class ReportController {
 				returnJson(response, r);				
 				
 			} else {
-				Report report = this.getReportManager().generateReport(reportCriteria);
+				Report report = this.getReportManager().generateReport(reportInput);
 
 				if(report.getHasError()) {
 					
@@ -307,27 +309,15 @@ public class ReportController {
 		response.getOutputStream().write(printBytes);			
 	}
 	
-	private ReportCriteria getReportCriteria(String bearerToken, DtoReportCriteriaRequest c) {
+	private ReportInput getReportCriteria(String bearerToken, DtoReportCriteriaRequest c) {
 		
 		if (ReportType.REPORT_USER_GROUPS.getReportCd().equals(c.getReportCd())) {   
 			Group[] groups = externalGroupManager.getGroups(bearerToken);
-			List<Group> list = new ArrayList<>(groups.length);
-			for(Group g: groups) {
-				list.add(g);
-			}
-			
-			// ReportType reportType, ReportOutputType reportOutputType, Date reportDate
-			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUPS, getReportOutputType(c), new Date());  // TODO
-			reportCriteria.getMap().put("_DATA", list);
-			return reportCriteria;
-		}
-		
 
-		
-		
-		
-		// TODO
-		
+			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUPS, getReportOutputType(c), new Date());  // TODO
+			return new GroupReportInput(reportCriteria, groups);
+		}
+
 		return null;
     }
 	

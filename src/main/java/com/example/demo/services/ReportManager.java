@@ -8,8 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,9 +19,12 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.services.models.groups.Group;
 import com.example.demo.services.reports.Report;
-import com.example.demo.services.reports.ReportCriteria;
 import com.example.demo.services.reports.ReportSource;
+import com.example.demo.services.reports.input.GroupReportInput;
+import com.example.demo.services.reports.input.ReportCriteria;
+import com.example.demo.services.reports.input.ReportInput;
 import com.example.demo.services.utils.Mime;
 import com.example.demo.services.utils.StringUtil;
 import com.lowagie.text.pdf.PdfWriter;
@@ -153,7 +156,8 @@ public class ReportManager {
 		}		
     }	
 	
-	public Report generateReport(ReportCriteria reportCriteria) {
+	public Report generateReport(ReportInput reportInput) {
+		ReportCriteria reportCriteria = reportInput.getCriteria();
 
 		String reportKey = StringUtil.randString(10,10); // helpful for logging
 		logger.info("Starting Report: " + reportCriteria.getReportType() + " key=" + reportKey + " " + reportCriteria);
@@ -161,7 +165,7 @@ public class ReportManager {
 		byte[] data = null;
 		Report report = null;
 
-		JasperPrint jasperPrint = dataSourceJasperPrint(reportCriteria);
+		JasperPrint jasperPrint = getJasperPrint(reportInput);
 		ReportOutputType reportOutputType = reportCriteria.getReportOutputType();
 
 		if (reportOutputType.equals(ReportOutputType.RPT_OUTPUT_TYPE_CSV)) {
@@ -194,18 +198,21 @@ public class ReportManager {
 		return report;
 	}
 	
-	private JasperPrint dataSourceJasperPrint(ReportCriteria reportCriteria) {
+	private JasperPrint getJasperPrint(ReportInput reportInput) {
 		JasperPrint jasperPrint = null;
 		ReportSource reportSource = null;
 
 		try{
 
-			if (ReportType.REPORT_USER_GROUPS.equals(reportCriteria.getReportType())){
-				reportSource = new ReportSource(reportCriteria.getReportType(), getGroups(reportCriteria.getMap()));
+			if (ReportType.REPORT_USER_GROUPS.equals(reportInput.getCriteria().getReportType())){
+				GroupReportInput groupReportInput = (GroupReportInput) reportInput;
+				
+				Group[] reportData = groupReportInput.getData();
+				reportSource = new ReportSource(reportInput.getCriteria().getReportType(), getDataSourceForGroups(reportData));
 			}
 
 			if (reportSource != null){
-				jasperPrint =  JasperFillManager.fillReport(reportSource.getReportType().getReportInputStream(), reportCriteria.getMap(), reportSource.getDataSource());
+				jasperPrint =  JasperFillManager.fillReport(reportSource.getReportType().getReportInputStream(), reportInput.getCriteria().getMap(), reportSource.getDataSource());
 
 			}
 		}catch (JRException ex) {
@@ -214,12 +221,13 @@ public class ReportManager {
 		return jasperPrint;
 	}
 	
-	public JRDataSource getGroups(Map<String, Object> map) {
-		
-		List<?> groups = (List<?>) map.get("_DATA");
+	public JRDataSource getDataSourceForGroups(Group[] groups) {
+		List<Group> list = new ArrayList<>(groups.length);
+		for(Group g: groups) {
+			list.add(g);
+		}
 
-
-    	JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(groups);
+    	JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(list);
     	return ds;
     }
 	
