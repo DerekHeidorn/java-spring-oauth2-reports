@@ -1,9 +1,11 @@
 package com.example.demo.services.reports.input;
 
+import java.util.Collection;
+
 public class ReportInput  {
 
-	private ReportCriteria criteria;
-	private Object data;
+	protected ReportCriteria criteria;
+	protected Collection<?> data;
 	
 	public ReportInput() {
 	}
@@ -12,12 +14,12 @@ public class ReportInput  {
 		this.criteria = criteria;
 	}
 	
-	public ReportInput(ReportCriteria criteria, Object data) {
+	public ReportInput(ReportCriteria criteria, Collection<?> data) {
 		this.criteria = criteria;
 		this.data = data;
 	}
 	
-	public Object getData() {
+	public Collection<?> getData() {
 		return data;
 	}
 
@@ -26,7 +28,7 @@ public class ReportInput  {
 		return criteria;
 	}
 
-	public void setData(Object data) {
+	public void setData(Collection<?> data) {
 		this.data = data;
 	}
 	

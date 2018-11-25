@@ -4,15 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GroupResponse<T> {
-
-//	private List<String> globalInfoMsgs = new ArrayList<String>();
-//	private List<String> globalWarnings = new ArrayList<String>();
-	
-//    // T stands for "Type"
-//    private T t;
-//
-//    public void set(T t) { this.t = t; }
-//    public T get() { return t; }
 	
 	public GroupResponse(T data) {
 		this.data = data;

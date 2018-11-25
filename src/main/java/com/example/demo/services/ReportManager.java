@@ -8,8 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,17 +17,14 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.services.models.groups.Group;
 import com.example.demo.services.reports.Report;
 import com.example.demo.services.reports.ReportSource;
-import com.example.demo.services.reports.input.GroupReportInput;
 import com.example.demo.services.reports.input.ReportCriteria;
 import com.example.demo.services.reports.input.ReportInput;
 import com.example.demo.services.utils.Mime;
 import com.example.demo.services.utils.StringUtil;
 import com.lowagie.text.pdf.PdfWriter;
 
-import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -202,14 +197,8 @@ public class ReportManager {
 		JasperPrint jasperPrint = null;
 		ReportSource reportSource = null;
 
-		try{
-
-			if (ReportType.REPORT_USER_GROUPS.equals(reportInput.getCriteria().getReportType())){
-				GroupReportInput groupReportInput = (GroupReportInput) reportInput;
-				
-				Group[] reportData = groupReportInput.getData();
-				reportSource = new ReportSource(reportInput.getCriteria().getReportType(), getDataSourceForGroups(reportData));
-			}
+		try {
+			reportSource = new ReportSource(reportInput.getCriteria().getReportType(), new JRBeanCollectionDataSource(reportInput.getData()));
 
 			if (reportSource != null){
 				jasperPrint =  JasperFillManager.fillReport(reportSource.getReportType().getReportInputStream(), reportInput.getCriteria().getMap(), reportSource.getDataSource());
@@ -220,17 +209,7 @@ public class ReportManager {
 		}
 		return jasperPrint;
 	}
-	
-	public JRDataSource getDataSourceForGroups(Group[] groups) {
-		List<Group> list = new ArrayList<>(groups.length);
-		for(Group g: groups) {
-			list.add(g);
-		}
 
-    	JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(list);
-    	return ds;
-    }
-	
 	private boolean candidateForCompression(int byteLength) {
 		if(byteLength > ZIP_COMPRESSION_THRESHOLD_BYTES) {
 			return true;

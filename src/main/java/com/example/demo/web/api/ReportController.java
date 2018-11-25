@@ -313,9 +313,13 @@ public class ReportController {
 		
 		if (ReportType.REPORT_USER_GROUPS.getReportCd().equals(c.getReportCd())) {   
 			Group[] groups = externalGroupManager.getGroups(bearerToken);
+			List<Group> list = new ArrayList<>(groups.length);
+			for(Group g: groups) {
+				list.add(g);
+			}
 
 			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUPS, getReportOutputType(c), new Date());  // TODO
-			return new GroupReportInput(reportCriteria, groups);
+			return new GroupReportInput(reportCriteria, list);
 		}
 
 		return null;
