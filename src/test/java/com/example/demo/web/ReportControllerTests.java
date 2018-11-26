@@ -193,4 +193,44 @@ public class ReportControllerTests extends AbstractControllerTest {
 
 	}  
 	
+    @Test
+	public void testCreateReport_pdf_email() throws Exception {
+    	
+    	String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubcribedToken();
+
+    	
+    	DtoReportCriteriaRequest reportCriteriaRequest = new DtoReportCriteriaRequest();
+    	reportCriteriaRequest.setReportCd(ReportManager.ReportType.REPORT_USER_GROUPS.getReportCd());
+    	reportCriteriaRequest.setStartDt(DateUtils.addDays(new Date(), -10));
+    	reportCriteriaRequest.setEndDt(DateUtils.addDays(new Date(), -5));
+    	reportCriteriaRequest.setReportOutputType(ReportOutputType.RPT_OUTPUT_TYPE_PDF.getMimeType().getExtension());
+    	reportCriteriaRequest.setReportProcessType(ReportManager.ReportProcessType.RPT_PROCESS_TYPE_EMAIL.getCode());
+    	
+    	String dataAsJson = json(reportCriteriaRequest); 
+    	log.debug(dataAsJson);
+
+    	
+
+    	// /public/reservations/{rsvnId}/details/permits (GET)
+    	String jsonUrl = "/api/v1.0/public/reports/create";
+
+    	ResultActions ra = getMockMvc().perform(
+    			post(jsonUrl)
+    			.header("Authorization", "bearer " + token)
+				.accept(MediaType.parseMediaType("application/pdf"))
+				.content(dataAsJson)
+				.contentType(DEFAULT_CONTENT_TYPE))
+    			.andDo(print());
+				
+    	//debugResultActions(ra);
+    	
+    	ra.andExpect(status().isCreated());
+
+    	
+    	
+    	ra.andExpect(jsonPath("globalInfoMsgs[0]").value("File Sent"));
+
+
+	}  
+    
 }

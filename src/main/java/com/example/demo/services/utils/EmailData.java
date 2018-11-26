@@ -70,6 +70,10 @@ public class EmailData {
 		this.bodyHtml = bodyHtml;
 	}
 
+	public void addAttachment(String name, byte[] contentData, String mimeType) {
+		attachments.add(new Attachment(name, contentData, mimeType));
+	}
+	
 	public List<Attachment> getAttachments() {
 		return attachments;
 	}
@@ -101,13 +105,22 @@ public class EmailData {
 	
 	public class Attachment {
 		
-		private byte[] contentData;	
-	    
-	    private String contentType;    
+		private byte[] contentData;	 
 
 	    private String name;
 
 	    private String mimeType;
+
+		public Attachment() {
+			super();
+		}
+
+		public Attachment(String name, byte[] contentData, String mimeType) {
+			super();
+			this.contentData = contentData;
+			this.name = name;
+			this.mimeType = mimeType;
+		}
 
 		public byte[] getContentData() {
 			return contentData;
@@ -115,14 +128,6 @@ public class EmailData {
 
 		public void setContentData(byte[] contentData) {
 			this.contentData = contentData;
-		}
-
-		public String getContentType() {
-			return contentType;
-		}
-
-		public void setContentType(String contentType) {
-			this.contentType = contentType;
 		}
 
 		public String getName() {

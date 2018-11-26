@@ -1,15 +1,22 @@
 package com.example.demo.services;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +28,9 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.services.reports.Report;
 import com.example.demo.services.utils.EmailData;
+import com.example.demo.services.utils.Mime;
 
 @Service
 public class EmailManager {
@@ -30,6 +39,111 @@ public class EmailManager {
 	
 	@Autowired
 	private Environment environment;
+	
+    public static enum EmailType {
+
+    	REPORT("REPORT" ,"Report", "report.txt", "report.html");
+
+    	private static final String EMAIL_TEMPLATE_DIR = "/email/templates/";
+    	
+    	private String emailCd;
+    	private String subject;
+    	private String txtTemplate;
+    	private String htmlTemplate;
+
+
+    	EmailType(String emailCd, String subject, String txtTemplate, String htmlTemplate) {
+    		this.emailCd = emailCd;
+    		this.subject = subject;
+    		this.txtTemplate = txtTemplate;
+    		this.htmlTemplate = htmlTemplate;
+     	}
+
+	
+		public String getHtmlFilePath() {
+			return EMAIL_TEMPLATE_DIR + getHtmlTemplate();
+		}
+		
+		public String getTxtFilePath() {
+			return EMAIL_TEMPLATE_DIR + getTxtTemplate();
+		}
+
+		public String getEmailCd() {
+			return emailCd;
+		}
+
+		public void setEmailCd(String emailCd) {
+			this.emailCd = emailCd;
+		}
+
+		public String getSubject() {
+			return subject;
+		}
+
+		public String getTxtTemplate() {
+			return txtTemplate;
+		}
+
+		public String getHtmlTemplate() {
+			return htmlTemplate;
+		}
+	
+    }	
+	
+	public EmailData generateReportEmail(Report report) {
+		
+//		ReportType reportType = report.getReportType();
+		Mime.TYPE mimeType = report.getMimeType();
+		
+		EmailType emailType = EmailType.REPORT;
+		
+		Map<String, String> substitutes = new HashMap<>();
+		substitutes.put("reportName", "Test Report");
+
+		
+		// String userUuid, String to, String from, String subject, String bodyTxt, String bodyHtml
+		String to = "test@foo.com";
+		String from = environment.getRequiredProperty("REPORT_APP_EMAIL_DEFAULT_SENDER");
+		String subject = "Report: ";
+		String bodyTxt = getTemplateFileAsString(emailType.getTxtFilePath(), substitutes);
+		String bodyHtml = getTemplateFileAsString(emailType.getHtmlFilePath(), substitutes);
+		EmailData e = new EmailData("123", to, from, subject, bodyTxt, bodyHtml);
+		// mimeMsgHelper.addAttachment(key, attachStream, tbNtfnContnt.getMimeType());
+		// byte[] contentData, String contentType, String name, String mimeType
+		e.addAttachment("reportAttachment", report.getData(), mimeType.getType());
+
+		
+		return e;
+	}
+	
+	public String getTemplateFileAsString(String filepath, Map<String, String> substitutes) {
+		
+		InputStream inputStream = this.getClass().getResourceAsStream(filepath);
+		
+
+		String contents = null;
+		try {
+			contents = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	    StrSubstitutor sub = new StrSubstitutor(substitutes);
+	    String result = sub.replace(contents);
+		
+		return result;
+		
+	}
+	
+
 	
 	public boolean sendEmail(EmailData emailData) {
 		
@@ -143,7 +257,7 @@ public class EmailManager {
 				} catch(MailException me) {
 					logger.fatal(" MailException: " + me.getMessage() + " " + me.getLocalizedMessage());
 				} catch(Throwable th){
-					logger.fatal(" MailException: " + th.getMessage() + " " + th.getLocalizedMessage(), th);
+					logger.fatal(" Throwable: " + th.getMessage() + " " + th.getLocalizedMessage(), th);
 				}
 			}
 			if(logger.isDebugEnabled()) {

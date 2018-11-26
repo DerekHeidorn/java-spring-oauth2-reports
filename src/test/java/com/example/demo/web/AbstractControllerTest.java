@@ -28,7 +28,7 @@ public class AbstractControllerTest {
         System.setProperty("REPORT_APP_MD5_SECRET_KEY", "ka8BnRJybDh9gRZZ292OjwByVUGFYMKQcB9QcW");
 
         System.setProperty("REPORT_APP_SMTP_HOST", "localhost");
-        System.setProperty("REPORT_APP_SMTP_PORT", "25");
+        System.setProperty("REPORT_APP_SMTP_PORT", "9025");
         System.setProperty("REPORT_APP_EMAIL_DEFAULT_SENDER", "support@example.com");
         
         //defaultESenderAddr

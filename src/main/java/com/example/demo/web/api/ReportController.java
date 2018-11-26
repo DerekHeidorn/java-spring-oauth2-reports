@@ -206,14 +206,12 @@ public class ReportController {
 				
 			} else {			
 
-				// User user = UserUtil.getCurrentUser();
-	
-				Object[] args = new Object[1];
-				args[0] = report;
-	
-				//Notice notice = getNoticeManager().createNotice(Notice.TOKEN.REPORT, user.getUserId(), args);
+				
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				authentication.getName();
+
 				// Send email
-				EmailData emailData = null; // = new EmailData();  TODO
+				EmailData emailData = getEmailManager().generateReportEmail(report); 
 				getEmailManager().sendEmail(emailData);
 
 				
@@ -311,7 +309,16 @@ public class ReportController {
 	
 	private ReportInput getReportCriteria(String bearerToken, DtoReportCriteriaRequest c) {
 		
-		if (ReportType.REPORT_USER_GROUPS.getReportCd().equals(c.getReportCd())) {   
+		if (ReportType.REPORT_GROUPS.getReportCd().equals(c.getReportCd())) {   
+			Group[] groups = externalGroupManager.getGroups(bearerToken);
+			List<Group> list = new ArrayList<>(groups.length);
+			for(Group g: groups) {
+				list.add(g);
+			}
+
+			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_GROUPS, getReportOutputType(c), new Date());  // TODO
+			return new GroupReportInput(reportCriteria, list);
+		} else if (ReportType.REPORT_USER_GROUPS.getReportCd().equals(c.getReportCd())) {   
 			Group[] groups = externalGroupManager.getGroups(bearerToken);
 			List<Group> list = new ArrayList<>(groups.length);
 			for(Group g: groups) {
@@ -319,6 +326,24 @@ public class ReportController {
 			}
 
 			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUPS, getReportOutputType(c), new Date());  // TODO
+			return new GroupReportInput(reportCriteria, list);
+		} else if (ReportType.REPORT_USER_GROUP_MEMBERS.getReportCd().equals(c.getReportCd())) {   
+			Group[] groups = externalGroupManager.getGroups(bearerToken);
+			List<Group> list = new ArrayList<>(groups.length);
+			for(Group g: groups) {
+				list.add(g);
+			}
+
+			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUP_MEMBERS, getReportOutputType(c), new Date());  // TODO
+			return new GroupReportInput(reportCriteria, list);
+		} else if (ReportType.REPORT_ADMIN_GROUP_MEMBERS.getReportCd().equals(c.getReportCd())) {   
+			Group[] groups = externalGroupManager.getGroups(bearerToken);
+			List<Group> list = new ArrayList<>(groups.length);
+			for(Group g: groups) {
+				list.add(g);
+			}
+
+			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_ADMIN_GROUP_MEMBERS, getReportOutputType(c), new Date());  // TODO
 			return new GroupReportInput(reportCriteria, list);
 		}
 
