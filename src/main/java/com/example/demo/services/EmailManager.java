@@ -17,8 +17,8 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
@@ -35,7 +35,7 @@ import com.example.demo.services.utils.Mime;
 @Service
 public class EmailManager {
 
-	private Log logger = LogFactory.getLog(this.getClass());
+	private Logger logger = LogManager.getLogger(this.getClass());
 	
 	@Autowired
 	private Environment environment;
@@ -236,12 +236,10 @@ public class EmailManager {
 						}
 						hasContent = true;
 					}
-					
-					
-					
+
 					Address[] addrs = mimeMsgHelper.getMimeMessage().getAllRecipients();
 					if(logger.isDebugEnabled()) {
-						logger.debug("hasContent" + hasContent + ",addrs" + addrs);
+						logger.debug("hasContent=" + hasContent + ",addrs=" + addrs);
 					}
 					
 					if(addrs != null && hasContent){
@@ -292,34 +290,26 @@ public class EmailManager {
 		jmProps.setProperty("mail.smtp.connectiontimeout", "16000");
 		jmProps.setProperty("mail.smtp.timeout", "16000");
 		javaMailSenderImpl.setJavaMailProperties(jmProps);
-		javaMailSenderImpl.setPort(25);
+		
 		
 		String host = environment.getRequiredProperty("REPORT_APP_SMTP_HOST").trim();
+		String port = environment.getRequiredProperty("REPORT_APP_SMTP_PORT").trim();
 		javaMailSenderImpl.setHost(host);
-		
-		String port = getMailPort();
-		Integer portNum = null;
-		
-		try{
-			portNum = Integer.parseInt(port);
-		}catch(NumberFormatException ex){
-			logger.warn("~~~"+Thread.currentThread().getName()+" Cannot convert " + port + " sendTo integer, use 25 as default port number.");
+		javaMailSenderImpl.setPort(new Integer(port).intValue());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Using SMTP (host,port)=" + javaMailSenderImpl.getHost() + "," + javaMailSenderImpl.getPort());
 		}
-		
-		if(portNum != null){
-			javaMailSenderImpl.setPort(portNum);
-		}
-		logger.debug("Use SMTP port " + javaMailSenderImpl.getPort());
+
 		return javaMailSenderImpl;
 	}
 	
-	private String getMailPort(){
-		String port = environment.getRequiredProperty("REPORT_APP_SMTP_PORT");
-		if(StringUtils.isNotBlank(port)){
-			return port.trim();
-		}
-		return port;
-	}
+//	private String getMailPort(){
+//		String port = environment.getRequiredProperty("REPORT_APP_SMTP_PORT");
+//		if(StringUtils.isNotBlank(port)){
+//			return port.trim();
+//		}
+//		return port;
+//	}
 	
 	private class EmailAddressFilteringList{
 		private List<String> emailList = new ArrayList<String>();

@@ -12,8 +12,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +38,7 @@ import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 
 @Service
 public class ReportManager {
-	protected final transient Log logger = LogFactory.getLog(getClass());	
+	private Logger logger = LogManager.getLogger(this.getClass());	
 	
 	final public static int ZIP_COMPRESSION_THRESHOLD_BYTES = 2000000;// After 2meg, compress the data 
 	

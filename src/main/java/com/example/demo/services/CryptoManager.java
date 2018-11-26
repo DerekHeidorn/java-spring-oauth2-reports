@@ -27,8 +27,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
@@ -50,7 +50,7 @@ public final class CryptoManager implements ApplicationContextAware {
 	
 	public final static String DEFAULT_ENCRYPTION_ALGORITHM_AES = "AES";  // /CBC/PKCS5Padding
 
-	private Log log = LogFactory.getLog(this.getClass());
+	private Logger logger = LogManager.getLogger(this.getClass());
 	
 	private ApplicationContext applicationContext; 
 	private SecretKey key = null;
@@ -85,15 +85,15 @@ public final class CryptoManager implements ApplicationContextAware {
 													    BadPaddingException, IOException {
         
         String appSecretKey = environment.getRequiredProperty("REPORT_APP_AES_SECRET_KEY");
-        log.debug("appSecretKey=" + appSecretKey);
+        logger.debug("appSecretKey=" + appSecretKey);
         
     	byte[] rawPassword = appSecretKey.getBytes();
     	key = new SecretKeySpec(rawPassword, "AES");
 		
 		if(key != null) {
-			log.info("Web layer encryption is enabled. Using " + DEFAULT_ENCRYPTION_ALGORITHM_AES + " algorithm");
+			logger.info("Web layer encryption is enabled. Using " + DEFAULT_ENCRYPTION_ALGORITHM_AES + " algorithm");
 		} else {
-			log.fatal("WEB LAYER ENCRYPTION IS DISABLED. Key = null");
+			logger.fatal("WEB LAYER ENCRYPTION IS DISABLED. Key = null");
 			throw new InvalidKeyException("Key is null");
 		}
 

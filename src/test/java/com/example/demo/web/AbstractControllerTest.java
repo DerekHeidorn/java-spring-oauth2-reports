@@ -2,8 +2,8 @@ package com.example.demo.web;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @AutoConfigureMockMvc
 public class AbstractControllerTest {
 	
-	protected final transient Log log = LogFactory.getLog(getClass());	
+	protected Logger logger = LogManager.getLogger(this.getClass());
 
     static {
     	System.setProperty("REPORT_APP_USER_API_URL_V1", "http://127.0.0.1:9000/api/v1.0");
@@ -46,7 +46,7 @@ public class AbstractControllerTest {
     	
     	MvcResult mvcResult = ra.andReturn();
         String content = mvcResult.getResponse().getContentAsString();   
-        log.debug("Response:\n"  + content + "\n");
+        logger.debug("Response:\n"  + content + "\n");
     	
     } 
 	

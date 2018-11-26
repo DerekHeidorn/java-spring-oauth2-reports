@@ -135,7 +135,7 @@ public class ReportControllerTests extends AbstractControllerTest {
     	reportCriteriaRequest.setReportProcessType(ReportManager.ReportProcessType.RPT_PROCESS_TYPE_HTTP.getCode());
     	
     	String dataAsJson = json(reportCriteriaRequest); 
-    	log.debug(dataAsJson);
+    	logger.debug(dataAsJson);
 
     	
 
@@ -186,7 +186,7 @@ public class ReportControllerTests extends AbstractControllerTest {
         assertNotNull(pdf);
         String tempFilePath = System.getProperty("java.io.tmpdir") + "sample.pdf";
         assertNotNull(tempFilePath);
-        log.info("tempFilePath=" + tempFilePath);
+        logger.info("tempFilePath=" + tempFilePath);
         FileUtils.writeByteArrayToFile(new File(tempFilePath), pdf);
     	
     	// 
@@ -207,7 +207,7 @@ public class ReportControllerTests extends AbstractControllerTest {
     	reportCriteriaRequest.setReportProcessType(ReportManager.ReportProcessType.RPT_PROCESS_TYPE_EMAIL.getCode());
     	
     	String dataAsJson = json(reportCriteriaRequest); 
-    	log.debug(dataAsJson);
+    	logger.debug(dataAsJson);
 
     	
 

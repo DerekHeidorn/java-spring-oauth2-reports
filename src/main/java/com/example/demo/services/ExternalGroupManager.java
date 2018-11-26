@@ -2,8 +2,8 @@ package com.example.demo.services;
 
 import java.util.Collections;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
@@ -14,13 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.demo.services.models.groups.Group;
 import com.example.demo.services.models.ResponseWrapper;
+import com.example.demo.services.models.groups.Group;
 
 @Service
 public class ExternalGroupManager {
 	
-	protected final transient Log logger = LogFactory.getLog(getClass());
+	private Logger logger = LogManager.getLogger(this.getClass());
 	
 	@Autowired
 	private Environment environment;
