@@ -50,6 +50,36 @@ public class ExternalGroupManager {
         
         return groupResponse.getData();
 	}
+	
+	public Group[] getGroupDetail(String bearerToken, String groupUuid) {
+		
+		String groupApiUrl = environment.getRequiredProperty("REPORT_APP_GROUP_API_URL_V1");
+		logger.info("groupApiUrl=" + groupApiUrl);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", bearerToken);
+
+		HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
+		RestTemplate restTemplate = new RestTemplate();
+
+		// // /api/v1.0/public/group/detail/<group_uuid>
+		ResponseEntity<ResponseWrapper> respEntity = restTemplate.exchange(groupApiUrl + "/public/group/detail/" + groupUuid, 
+																			HttpMethod.GET, entity, ResponseWrapper.class);
+
+		ResponseWrapper groupResponse = respEntity.getBody();
+
+        logger.info(groupResponse.toString());
+        logger.debug(groupResponse.getData().toString());
+        for(Group g: groupResponse.getData()) {
+        	logger.debug("g=" + g);
+        }
+        
+        return groupResponse.getData();
+	}
+	
+	
 
 
 

@@ -28,6 +28,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.services.models.persons.User;
 import com.example.demo.services.reports.Report;
 import com.example.demo.services.utils.EmailData;
 import com.example.demo.services.utils.Mime;
@@ -90,7 +91,7 @@ public class EmailManager {
 	
     }	
 	
-	public EmailData generateReportEmail(Report report) {
+	public EmailData generateReportEmail(User userProfile, Report report) {
 		
 //		ReportType reportType = report.getReportType();
 		Mime.TYPE mimeType = report.getMimeType();
@@ -98,11 +99,12 @@ public class EmailManager {
 		EmailType emailType = EmailType.REPORT;
 		
 		Map<String, String> substitutes = new HashMap<>();
-		substitutes.put("reportName", "Test Report");
+		substitutes.put("reportName", report.getReportTitle());
+		substitutes.put("formattedName", userProfile.getFormattedName());
 
 		
 		// String userUuid, String to, String from, String subject, String bodyTxt, String bodyHtml
-		String to = "test@foo.com";
+		String to = userProfile.getUsername();
 		String from = environment.getRequiredProperty("REPORT_APP_EMAIL_DEFAULT_SENDER");
 		String subject = "Report: ";
 		String bodyTxt = getTemplateFileAsString(emailType.getTxtFilePath(), substitutes);

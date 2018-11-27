@@ -34,12 +34,14 @@ import com.example.demo.configuration.WebConfiguration;
 import com.example.demo.services.CryptoManager;
 import com.example.demo.services.EmailManager;
 import com.example.demo.services.ExternalGroupManager;
+import com.example.demo.services.ExternalUserManager;
 import com.example.demo.services.ReportManager;
 import com.example.demo.services.ReportManager.ReportOutputType;
 import com.example.demo.services.ReportManager.ReportProcessType;
 import com.example.demo.services.ReportManager.ReportType;
 import com.example.demo.services.exceptions.CryptoException;
 import com.example.demo.services.models.groups.Group;
+import com.example.demo.services.models.persons.User;
 import com.example.demo.services.reports.Report;
 import com.example.demo.services.reports.input.GroupReportInput;
 import com.example.demo.services.reports.input.ReportCriteria;
@@ -72,6 +74,9 @@ public class ReportController {
 	
 	@Autowired
 	private CryptoManager cryptoManager;
+	
+	@Autowired
+	private ExternalUserManager externalUserManager;
 
     @RequestMapping(value = "/api/v1.0/public/reports/list", method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('CUST_RPTS') or hasAuthority('ADM_RPTS')")
@@ -232,34 +237,39 @@ public class ReportController {
 			
 		} else if(ReportProcessType.RPT_PROCESS_TYPE_EMAIL.name().equals(reportProcessType.name())) { 
 				
-			Report report = this.getReportManager().generateReport(reportInput);
-			
-			if(report.getHasError()) {
-				
-				RestApiResponse r = new RestApiResponse();
-				r.addGlobalError(report.getErrorMessage());			
-				returnJson(response, r);				
-				
-			} else {			
+			User userProfile = externalUserManager.getUserProfile(bearerToken);  // TODO should cache the users
+			if(userProfile != null) {
+				Report report = this.getReportManager().generateReport(reportInput);
 
-				
-				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-				authentication.getName();
-
-				// Send email
-				EmailData emailData = getEmailManager().generateReportEmail(report); 
-				getEmailManager().sendEmail(emailData);
-
-				
-				String fileType = getReportOutputType(reportCriteriaRequest).getMimeType().getExtension().toUpperCase();
-				logger.debug("fileType=" + fileType);
-				
-				RestApiResponse r = new RestApiResponse();
-				// r.addGlobalInfoMsg(getMessage(messageSource, "admin.reports.file.sent", new String[]{fileType}));  TODO			
-				r.addGlobalInfoMsg("File Sent");
-				returnJson(response, r);
+				if(report.getHasError()) {
+					
+					RestApiResponse r = new RestApiResponse();
+					r.addGlobalError(report.getErrorMessage());			
+					returnJson(response, r);				
+					
+				} else {			
+	
+					
+					Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+					authentication.getName();
+	
+					// Send email
+					EmailData emailData = getEmailManager().generateReportEmail(userProfile, report); 
+					getEmailManager().sendEmail(emailData);
+	
+					
+					String fileType = getReportOutputType(reportCriteriaRequest).getMimeType().getExtension().toUpperCase();
+					logger.debug("fileType=" + fileType);
+					
+					RestApiResponse r = new RestApiResponse();
+					// r.addGlobalInfoMsg(getMessage(messageSource, "admin.reports.file.sent", new String[]{fileType}));  TODO			
+					r.addGlobalInfoMsg("File Sent");
+					returnJson(response, r);
+				}
+			} else {
+				logger.fatal("User is null!!!");
 			}
-		} 	
+		}
 	}
 
 	private void processHttpReport(String bearerToken, DtoReportCriteriaRequest reportCriteriaRequest, ReportInput reportInput, HttpServletResponse response, boolean responseWithKey) throws IOException, CryptoException {  
@@ -427,5 +437,25 @@ public class ReportController {
 
 	public void setEmailManager(EmailManager emailManager) {
 		this.emailManager = emailManager;
+	}
+
+
+	public ExternalGroupManager getExternalGroupManager() {
+		return externalGroupManager;
+	}
+
+
+	public void setExternalGroupManager(ExternalGroupManager externalGroupManager) {
+		this.externalGroupManager = externalGroupManager;
+	}
+
+
+	public ExternalUserManager getExternalUserManager() {
+		return externalUserManager;
+	}
+
+
+	public void setExternalUserManager(ExternalUserManager externalUserManager) {
+		this.externalUserManager = externalUserManager;
 	}
 }

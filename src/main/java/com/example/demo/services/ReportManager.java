@@ -41,11 +41,12 @@ public class ReportManager {
 	private Logger logger = LogManager.getLogger(this.getClass());	
 	
 	final public static int ZIP_COMPRESSION_THRESHOLD_BYTES = 2000000;// After 2meg, compress the data 
-	
 
-	
 	@Autowired
 	private ExternalGroupManager externalGroupManager;
+	
+	@Autowired
+	private ExternalUserManager externalUserManager;
 	
 	public static enum ReportProcessType { 
 
@@ -91,9 +92,10 @@ public class ReportManager {
 
 		// campground reports
     	REPORT_USER_GROUPS("USER_GROUPS" ,"Active User Groups", "user_groups", new String[] {"CUST_RPTS", "CUST_RPTS_SUB", "CUST_RPTS_GRP_SUB"}),
+    	REPORT_USER_GROUPS_MEMBERSHIPS("USER_GROUPS_MEMBERSHIPS" ,"Active User Group Memberships", "group_memberships", new String[] {"CUST_RPTS", "CUST_RPTS_SUB", "CUST_RPTS_GRP_SUB"}),
     	REPORT_GROUPS("GROUPS" ,"All Public Groups", "groups", new String[] {"CUST_RPTS_SUB", "CUST_RPTS_GRP_SUB", "ADM_RPTS"}),
-    	REPORT_USER_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Membership Details", "group_memberships", new String[] {"CUST_RPTS_GRP_SUB", "ADM_RPTS"}),
-    	REPORT_ADMIN_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Membership Details", "group_memberships", new String[] {"ADM_RPTS"});
+    	REPORT_USER_GROUP_MEMBERS("GROUP_MEMBERS" ,"My Group Membership Details", "group_memberships", new String[] {"CUST_RPTS_GRP_SUB", "ADM_RPTS"}),
+    	REPORT_ADMIN_GROUP_MEMBERS("ADM_GROUP_MEMBERS" ,"Admin Group Membership Details", "group_memberships", new String[] {"ADM_RPTS"});
 
     	private static final String reportPath = "/reports/";
     	
@@ -348,5 +350,13 @@ public class ReportManager {
 
 	public void setExternalGroupManager(ExternalGroupManager externalGroupManager) {
 		this.externalGroupManager = externalGroupManager;
+	}
+
+	public ExternalUserManager getExternalUserManager() {
+		return externalUserManager;
+	}
+
+	public void setExternalUserManager(ExternalUserManager externalUserManager) {
+		this.externalUserManager = externalUserManager;
 	}
 }

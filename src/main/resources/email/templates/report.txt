@@ -1,2 +1,8 @@
+To {formattedName},
+
 The report is attached:
 - {reportName}
+
+Regards,
+
+Application Support
