@@ -1,15 +1,20 @@
 package com.example.demo.configuration;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -21,16 +26,60 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtClaimsSetVerifier;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableResourceServer
+@EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter {
+	private Logger logger = LogManager.getLogger(this.getClass());
+	
     @Override
     public void configure(ResourceServerSecurityConfigurer config) {
-        config.tokenServices(tokenServices());
+    	DefaultTokenServices tokenServices = tokenServices();
+        config.tokenServices(tokenServices);
     }
+    
+//    @Override
+//    public void configure(WebSecurity web) throws Exception {
+//        web.ignoring().antMatchers("/css/**","/js/**","/resource/**");
+//    }
  
+	@Override
+	public void configure(HttpSecurity http) throws Exception {
+		http.csrf().disable(); 
+		http.cors();
+		
+		http.authorizeRequests()
+    				.antMatchers("/api/v1.0/reports/download/**")
+    				.permitAll()
+    					.and()
+    						.anonymous().
+    					and()
+    						.cors().disable();
+		http.authorizeRequests()
+    				.antMatchers("/api/v1.0/public/**").authenticated();
+    	http.authorizeRequests()
+    				.antMatchers("/api/v1.0/admin/**").authenticated();
+
+	}
+	
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		
+		logger.info("Getting corsConfigurationSource...");
+		
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:4200", "http://localhost:4200"));
+		configuration.setAllowedMethods(Arrays.asList("OPTIONS","GET","POST", "PUT"));
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
+    
     @Bean
     public TokenStore tokenStore() {
         return new JwtTokenStore(accessTokenConverter());
@@ -70,6 +119,8 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
 
         }
     }
+
+
     
  
 }

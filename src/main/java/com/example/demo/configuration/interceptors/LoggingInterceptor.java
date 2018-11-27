@@ -15,10 +15,11 @@ public class LoggingInterceptor implements HandlerInterceptor  {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {	
 		
-		// Just log PUT, POST, DELETE, ignore GET, OPTIONS
+		// Just log PUT, POST, DELETE, GET
 		if("PUT".equalsIgnoreCase(request.getMethod()) 
 				|| "POST".equalsIgnoreCase(request.getMethod())
-				|| "GET".equalsIgnoreCase(request.getMethod())) {
+				|| "GET".equalsIgnoreCase(request.getMethod())
+				|| "DELETE".equalsIgnoreCase(request.getMethod())) {
 			//logger.info(request.getRequestURI() + " (" + request.getMethod() + ") " + UserUtil.getCurrentUser());
 			logger.info(request.getRequestURI() + " (" + request.getMethod() + ") "); // TODO
 		}

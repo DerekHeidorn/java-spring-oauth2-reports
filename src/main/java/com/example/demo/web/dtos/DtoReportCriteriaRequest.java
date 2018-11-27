@@ -46,6 +46,11 @@ public class DtoReportCriteriaRequest {
 	public void setEndDt(Date endDt) {
 		this.endDt = endDt;
 	}
+	@Override
+	public String toString() {
+		return "DtoReportCriteriaRequest [reportCd=" + reportCd + ", reportProcessType=" + reportProcessType
+				+ ", reportOutputType=" + reportOutputType + ", startDt=" + startDt + ", endDt=" + endDt + "]";
+	}
 
 	
 

@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +55,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 
-
+@CrossOrigin()
 @RestController
 public class ReportController {
 	
@@ -72,8 +73,8 @@ public class ReportController {
 	@Autowired
 	private CryptoManager cryptoManager;
 
-    @RequestMapping(value = "/api/v1.0/public/report/list", method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('CUST_ACCESS')")
+    @RequestMapping(value = "/api/v1.0/public/reports/list", method = RequestMethod.GET)
+    @PreAuthorize("hasAuthority('CUST_RPTS') or hasAuthority('ADM_RPTS')")
     public ResponseEntity<RestApiResponse> getPublicReportList(HttpServletRequest request) {
     	
     	String bearerToken = request.getHeader("Authorization");
@@ -147,6 +148,40 @@ public class ReportController {
 	}
 	
 	@Transactional(readOnly = true)
+	@RequestMapping(value = "/api/v1.0/reports/download/{key}", headers="Accept=*/*", method = RequestMethod.GET, produces={"application/pdf", "text/csv", "application/json"})
+	public void downloadReportWithKey(HttpServletRequest request, @PathVariable String key, @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
+		
+//		String bearerToken = request.getHeader("Authorization");
+		Map<String,String> map = cryptoManager.decryptMap(key);
+//		String userUuid = map.get("userUuid");
+		String timeString = map.get("time");	
+		String reportCd = map.get("reportCd");
+		String bearerToken = map.get("bearerToken");
+		
+		Long timeLong = new Long(timeString);
+		Date reportRunDate = new Date(timeLong);
+		
+		if(logger.isDebugEnabled()) {
+//			logger.debug("userUuid=" + userUuid);
+			logger.debug("timeString=" + timeString);
+			logger.debug("reportRunDate=" + reportRunDate);
+			logger.debug("reportCd=" + reportCd);
+			logger.debug("bearerToken=" + bearerToken);
+			logger.debug("reportCriteriaRequest=" + reportCriteriaRequest);
+		}
+
+		Date yesterday = DateUtils.addHours(new Date(), -24);
+		boolean within24Hours = reportRunDate.after(yesterday);
+
+		 // only comparing staff userId, reportName and ran within 24 hours
+		if(reportCd.equals(reportCriteriaRequest.getReportCd()) && within24Hours) {
+			generateReportInternal(bearerToken, reportCriteriaRequest, response, false);
+		} else {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);	
+		}
+	}
+	
+	@Transactional(readOnly = true)
 	@RequestMapping(value = "/api/v1.0/public/reports/create", headers="Accept=*/*", method = RequestMethod.OPTIONS, produces={"application/pdf", "text/csv", "application/json"}) 
 	public ResponseEntity<String>  optionsGenerateReport(HttpServletResponse response) {
 		response.setHeader("Allow", "POST,OPTIONS");
@@ -155,14 +190,14 @@ public class ReportController {
 	
 	@Transactional(readOnly = true)
 	@RequestMapping(value = "/api/v1.0/public/reports/create", headers="Accept=*/*", method = RequestMethod.POST, produces={"application/pdf", "text/csv", "application/json"})
-	@PreAuthorize("hasAuthority('CUST_ACCESS')")
+	//@PreAuthorize("hasAuthority('CUST_ACCESS')")
 	public void generateReport(HttpServletRequest request, @RequestBody @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
 		String bearerToken = request.getHeader("Authorization");
 		generateReportInternal(bearerToken, reportCriteriaRequest, response, true);
 	}
 	
 	
-	private String generateEncryptedKey(DtoReportCriteriaRequest reportCriteriaRequest) throws CryptoException {
+	private String generateEncryptedKey(String bearerToken, DtoReportCriteriaRequest reportCriteriaRequest) throws CryptoException {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Object principal = authentication.getPrincipal();
@@ -174,6 +209,7 @@ public class ReportController {
 		Map<String,String> map = new HashMap<String,String>();
 		//map.put("userUuid", authentication.getName()); // TODO get UUID from token
 		map.put("reportCd", reportCriteriaRequest.getReportCd());
+		map.put("bearerToken", bearerToken);
 		map.put("time", "" + new Date().getTime()); // just to make the key unique.
 		
 		String key = cryptoManager.encryptMap(map);
@@ -192,7 +228,7 @@ public class ReportController {
 		if(ReportProcessType.RPT_PROCESS_TYPE_HTTP.name().equals(reportProcessType.name())) { 
 			
 			// put report criteria in the session for the report servlet to pick it up
-			generateReportInternal(reportCriteriaRequest, reportInput, response, responseWithKey);					
+			processHttpReport(bearerToken, reportCriteriaRequest, reportInput, response, responseWithKey);					
 			
 		} else if(ReportProcessType.RPT_PROCESS_TYPE_EMAIL.name().equals(reportProcessType.name())) { 
 				
@@ -226,7 +262,7 @@ public class ReportController {
 		} 	
 	}
 
-	private void generateReportInternal(DtoReportCriteriaRequest reportCriteriaRequest, ReportInput reportInput, HttpServletResponse response, boolean responseWithKey) throws IOException, CryptoException {  
+	private void processHttpReport(String bearerToken, DtoReportCriteriaRequest reportCriteriaRequest, ReportInput reportInput, HttpServletResponse response, boolean responseWithKey) throws IOException, CryptoException {  
 		
 		if (reportInput == null) {
 			
@@ -246,7 +282,7 @@ public class ReportController {
 			if(responseWithKey) {
 				DtoReportCriteriaResponseWithKey reportResponse = new DtoReportCriteriaResponseWithKey();
 				reportResponse.setCriteria(reportCriteriaRequest);
-				reportResponse.setKey(this.generateEncryptedKey(reportCriteriaRequest)); // set new key 
+				reportResponse.setKey(this.generateEncryptedKey(bearerToken, reportCriteriaRequest)); // set new key 
 
 				RestApiResponse r = new RestApiResponse();
 				r.setData(reportResponse);

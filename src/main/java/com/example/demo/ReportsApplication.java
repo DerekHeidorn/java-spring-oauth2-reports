@@ -18,4 +18,5 @@ public class ReportsApplication extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()                
                 .antMatchers("/").authenticated();
     }
+
 }

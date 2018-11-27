@@ -90,10 +90,10 @@ public class ReportManager {
     public static enum ReportType {
 
 		// campground reports
-    	REPORT_USER_GROUPS("USER_GROUPS" ,"Active User Groups", "user_groups", new String[] {"CUST_RPT_UNSUB", "CUST_RPT_SUB", "CUST_RPT_GRP_SUB"}),
-    	REPORT_GROUPS("GROUPS" ,"All Public Groups", "groups", new String[] {"CUST_RPT_SUB", "CUST_RPT_GRP_SUB", "ADM_RPT"}),
-    	REPORT_USER_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Membership Details", "group_memberships", new String[] {"CUST_RPT_GRP_SUB", "ADM_RPT"}),
-    	REPORT_ADMIN_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Membership Details", "group_memberships", new String[] {"ADM_RPT"});
+    	REPORT_USER_GROUPS("USER_GROUPS" ,"Active User Groups", "user_groups", new String[] {"CUST_RPTS", "CUST_RPTS_SUB", "CUST_RPTS_GRP_SUB"}),
+    	REPORT_GROUPS("GROUPS" ,"All Public Groups", "groups", new String[] {"CUST_RPTS_SUB", "CUST_RPTS_GRP_SUB", "ADM_RPTS"}),
+    	REPORT_USER_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Membership Details", "group_memberships", new String[] {"CUST_RPTS_GRP_SUB", "ADM_RPTS"}),
+    	REPORT_ADMIN_GROUP_MEMBERS("GROUP_MEMBERS" ,"Group Membership Details", "group_memberships", new String[] {"ADM_RPTS"});
 
     	private static final String reportPath = "/reports/";
     	

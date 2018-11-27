@@ -6,7 +6,7 @@ public class DtoStringListItem implements Comparator<DtoStringListItem>, Compara
 
 	private String itemId;
 	
-	private String label;
+	private String itemLabel;
 
 
 	public DtoStringListItem() {
@@ -14,28 +14,20 @@ public class DtoStringListItem implements Comparator<DtoStringListItem>, Compara
 		
 	}
 
-	public DtoStringListItem(String itemId, String label) {
+	public DtoStringListItem(String itemId, String itemLabel) {
 		super();
 		this.itemId = itemId;
-		this.label = label;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
+		this.itemLabel = itemLabel;
 	}
 
 	@Override
 	public int compare(DtoStringListItem o1, DtoStringListItem o2) {
-		return o1.getLabel().compareTo(o2.getLabel());
+		return o1.getItemLabel().compareTo(o2.getItemLabel());
 	}
 
 	@Override
 	public int compareTo(DtoStringListItem o) {
-		return this.getLabel().compareTo(o.getLabel());
+		return this.getItemLabel().compareTo(o.getItemLabel());
 	}
 
 	public String getItemId() {
@@ -44,6 +36,14 @@ public class DtoStringListItem implements Comparator<DtoStringListItem>, Compara
 
 	public void setItemId(String itemId) {
 		this.itemId = itemId;
+	}
+
+	public String getItemLabel() {
+		return itemLabel;
+	}
+
+	public void setItemLabel(String itemLabel) {
+		this.itemLabel = itemLabel;
 	}
 
 
