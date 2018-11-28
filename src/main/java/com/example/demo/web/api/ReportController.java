@@ -79,7 +79,7 @@ public class ReportController {
 	private ExternalUserManager externalUserManager;
 
     @RequestMapping(value = "/api/v1.0/public/reports/list", method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('CUST_RPTS') or hasAuthority('ADM_RPTS')")
+    @PreAuthorize("hasAuthority('RPT_ACCESS')")
     public ResponseEntity<RestApiResponse> getPublicReportList(HttpServletRequest request) {
     	
     	String bearerToken = request.getHeader("Authorization");
@@ -112,16 +112,14 @@ public class ReportController {
 		return new ResponseEntity<RestApiResponse>(r, HttpStatus.OK);
     }
 
-    
-	@Transactional(readOnly = true)
 	@RequestMapping(value = "/api/v1.0/public/reports/create/{key}", headers="Accept=*/*", method = RequestMethod.OPTIONS, produces={"application/pdf", "text/csv", "application/json"}) 
 	public ResponseEntity<String>  optionsGenerateReportWithKey(@PathVariable String key, HttpServletResponse response) {
 		response.setHeader("Allow", "GET,OPTIONS");
 	    return new ResponseEntity<String>(HttpStatus.OK);
 	}
-	
-	@Transactional(readOnly = true)
+
 	@RequestMapping(value = "/api/v1.0/public/reports/create/{key}", headers="Accept=*/*", method = RequestMethod.GET, produces={"application/pdf", "text/csv", "application/json"})
+	@PreAuthorize("hasAuthority('RPT_ACCESS')")
 	public void generateReportWithKey(HttpServletRequest request, @PathVariable String key, @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
 		
 		String bearerToken = request.getHeader("Authorization");
@@ -152,7 +150,7 @@ public class ReportController {
 		}
 	}
 	
-	@Transactional(readOnly = true)
+
 	@RequestMapping(value = "/api/v1.0/reports/download/{key}", headers="Accept=*/*", method = RequestMethod.GET, produces={"application/pdf", "text/csv", "application/json"})
 	public void downloadReportWithKey(HttpServletRequest request, @PathVariable String key, @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
 		
@@ -186,7 +184,6 @@ public class ReportController {
 		}
 	}
 	
-	@Transactional(readOnly = true)
 	@RequestMapping(value = "/api/v1.0/public/reports/create", headers="Accept=*/*", method = RequestMethod.OPTIONS, produces={"application/pdf", "text/csv", "application/json"}) 
 	public ResponseEntity<String>  optionsGenerateReport(HttpServletResponse response) {
 		response.setHeader("Allow", "POST,OPTIONS");
@@ -195,7 +192,7 @@ public class ReportController {
 	
 	@Transactional(readOnly = true)
 	@RequestMapping(value = "/api/v1.0/public/reports/create", headers="Accept=*/*", method = RequestMethod.POST, produces={"application/pdf", "text/csv", "application/json"})
-	//@PreAuthorize("hasAuthority('CUST_ACCESS')")
+    @PreAuthorize("hasAuthority('RPT_ACCESS')")
 	public void generateReport(HttpServletRequest request, @RequestBody @Valid DtoReportCriteriaRequest reportCriteriaRequest, HttpServletResponse response) throws IOException, CryptoException {
 		String bearerToken = request.getHeader("Authorization");
 		generateReportInternal(bearerToken, reportCriteriaRequest, response, true);

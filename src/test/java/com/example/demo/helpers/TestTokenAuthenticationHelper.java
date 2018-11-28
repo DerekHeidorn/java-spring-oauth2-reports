@@ -56,10 +56,11 @@ public class TestTokenAuthenticationHelper {
         return null;
     }
 
-    public static String createDefaultPublicUnsubcribedToken() {
+    public static String createDefaultPublicUnsubscribedToken() {
 		List<String> authorities = new ArrayList<>();
 		authorities.add("CUST_ACCESS");
-		authorities.add("CUST_RPTS");
+		authorities.add("RPT_ACCESS");
+		authorities.add("RPT_ACTIVE_USER_GRP");
 		
     	return createToken(DEFAULT_PUBLIC_UUID, authorities);
     }
@@ -67,8 +68,10 @@ public class TestTokenAuthenticationHelper {
     public static String createDefaultPublicSubcribedToken() {
 		List<String> authorities = new ArrayList<>();
 		authorities.add("CUST_ACCESS");
-		authorities.add("CUST_RPTS");
-		authorities.add("CUST_RPTS_SUB");
+		authorities.add("RPT_ACCESS");
+		authorities.add("RPT_ACTIVE_USER_GRP");
+		authorities.add("RPT_ACTIVE_USER_GRP_MEMBERSHIPS");
+		authorities.add("RPT_GROUP_MEMBERS");
 		
     	return createToken(DEFAULT_PUBLIC_UUID, authorities);
     }
@@ -76,9 +79,11 @@ public class TestTokenAuthenticationHelper {
     public static String createDefaultPublicGroupSubcribedToken() {
 		List<String> authorities = new ArrayList<>();
 		authorities.add("CUST_ACCESS");
-		authorities.add("CUST_RPTS");
-		authorities.add("CUST_RPTS_SUB");
-		authorities.add("CUST_RPTS_GROUP_SUB");
+		authorities.add("RPT_ACCESS");
+		authorities.add("RPT_ACTIVE_USER_GRP");
+		authorities.add("RPT_ACTIVE_USER_GRP_MEMBERSHIPS");
+		authorities.add("RPT_GROUP_MEMBERS");
+		authorities.add("RPT_GROUP_MEMBER_DETAILS");
 		
     	return createToken(DEFAULT_PUBLIC_UUID, authorities);
     }
@@ -86,7 +91,11 @@ public class TestTokenAuthenticationHelper {
     public static String createDefaultAdmniToken() {
 		List<String> authorities = new ArrayList<>();
 		authorities.add("ADM_ACCESS");
-		authorities.add("ADM_RPTS");
+		authorities.add("RPT_ACCESS");
+		authorities.add("RPT_ACTIVE_USER_GRP");
+		authorities.add("RPT_ACTIVE_USER_GRP_MEMBERSHIPS");
+		authorities.add("RPT_GROUP_MEMBERS");
+		authorities.add("RPT_GROUP_MEMBER_DETAILS");
 		
     	return createToken(DEFAULT_ADMIN_UUID, authorities);
     }

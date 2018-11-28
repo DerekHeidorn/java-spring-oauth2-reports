@@ -35,7 +35,7 @@ public class ReportControllerTests extends AbstractControllerTest {
 	public void testUnknownUri() throws Exception {
 
 		ResultActions ra = getMockMvc().perform(
-						get("/Unknown/uri")
+						get("/api/v1.0/public/Unknown/uri")
 						).andDo(print());
 		
 		debugResultActions(ra);
@@ -48,7 +48,7 @@ public class ReportControllerTests extends AbstractControllerTest {
 	public void testNoToken() throws Exception {
 
 		ResultActions ra = getMockMvc().perform(
-						get("/api/v1.0/public/report/list")
+						get("/api/v1.0/public/reports/list")
 						).andDo(print());
 		
 		debugResultActions(ra);
@@ -67,7 +67,7 @@ public class ReportControllerTests extends AbstractControllerTest {
 		
 
 		ResultActions ra = getMockMvc().perform(
-							get("/api/v1.0/public/report/list")
+							get("/api/v1.0/public/reports/list")
 							.header("Authorization", "bearer " + token)
 						).andDo(print());
 		
@@ -82,7 +82,7 @@ public class ReportControllerTests extends AbstractControllerTest {
 	@Test
 	public void testAuthorizedInvalidUri() throws Exception {
 		
-		String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubcribedToken();
+		String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubscribedToken();
 		
 
 		ResultActions ra = getMockMvc().perform(
@@ -98,11 +98,11 @@ public class ReportControllerTests extends AbstractControllerTest {
 	@Test
 	public void testReportListAuthorized() throws Exception {
 		
-		String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubcribedToken();
+		String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubscribedToken();
 		
 
 		ResultActions ra = getMockMvc().perform(
-						get("/api/v1.0/public/report/list").header("Authorization", "bearer " + token)
+						get("/api/v1.0/public/reports/list").header("Authorization", "bearer " + token)
 						).andDo(print());
 		
 		debugResultActions(ra);
@@ -124,7 +124,7 @@ public class ReportControllerTests extends AbstractControllerTest {
     @Test
 	public void testCreateReport_pdf() throws Exception {
     	
-    	String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubcribedToken();
+    	String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubscribedToken();
 
     	
     	DtoReportCriteriaRequest reportCriteriaRequest = new DtoReportCriteriaRequest();
@@ -196,7 +196,7 @@ public class ReportControllerTests extends AbstractControllerTest {
     @Test
 	public void testCreateReport_pdf_email() throws Exception {
     	
-    	String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubcribedToken();
+    	String token = TestTokenAuthenticationHelper.createDefaultPublicUnsubscribedToken();
 
     	
     	DtoReportCriteriaRequest reportCriteriaRequest = new DtoReportCriteriaRequest();
