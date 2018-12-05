@@ -2,7 +2,7 @@
 <!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="user_group" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c3046727-8008-41d2-bedb-09d2d6cee465">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
-	<field name="groupUuid" class="java.lang.String"/>
+	<field name="groupDescription" class="java.lang.String"/>
 	<field name="groupName" class="java.lang.String"/>
 	<background>
 		<band/>
@@ -37,12 +37,12 @@
 				<reportElement x="-20" y="20" width="595" height="1" forecolor="#666666" uuid="3edb9c48-04f6-41ff-9151-f59cf0dac45d"/>
 			</line>
 			<staticText>
-				<reportElement x="20" y="0" width="130" height="20" uuid="8f7e9bcd-7321-4492-baaf-d280479df5c9"/>
-				<text><![CDATA[Group UUID]]></text>
+				<reportElement x="0" y="0" width="150" height="20" uuid="8f7e9bcd-7321-4492-baaf-d280479df5c9"/>
+				<text><![CDATA[Group Name]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="180" y="0" width="270" height="20" uuid="57cc626d-555b-4242-b5da-df40635e2571"/>
-				<text><![CDATA[Group Name]]></text>
+				<reportElement x="160" y="0" width="270" height="20" uuid="57cc626d-555b-4242-b5da-df40635e2571"/>
+				<text><![CDATA[Group Description]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
@@ -53,11 +53,11 @@
 			</line>
 			<textField>
 				<reportElement x="0" y="0" width="150" height="18" uuid="cdf6c30c-421a-4332-9ba9-fce8f0242e44"/>
-				<textFieldExpression><![CDATA[$F{groupUuid}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{groupName}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="180" y="0" width="270" height="18" uuid="84cdc2ac-f06e-4d69-9bc6-36ce1f1e7354"/>
-				<textFieldExpression><![CDATA[$F{groupName}]]></textFieldExpression>
+				<reportElement x="160" y="0" width="395" height="18" uuid="84cdc2ac-f06e-4d69-9bc6-36ce1f1e7354"/>
+				<textFieldExpression><![CDATA[$F{groupDescription}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

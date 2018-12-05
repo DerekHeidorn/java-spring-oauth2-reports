@@ -3,12 +3,23 @@ package com.example.demo.web.dtos;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RestApiResponse {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+public class RestApiResponse {
+	
+	@JsonProperty("global_success_msgs")
+	private List<String> globalSuccessMsgs = new ArrayList<String>();
+
+	@JsonProperty("global_info_msgs")
 	private List<String> globalInfoMsgs = new ArrayList<String>();
+	
+	@JsonProperty("global_warning_msgs")
 	private List<String> globalWarnings = new ArrayList<String>();
 	
-	private List<RestApiGlobalError> globalErrors = new ArrayList<RestApiGlobalError>();	
+	@JsonProperty("global_error_msgs")
+	private List<String> globalErrors = new ArrayList<String>();
+	
+	@JsonProperty("field_error_msgs")
 	private List<RestApiFieldError> fieldErrors = new ArrayList<RestApiFieldError>();	
 	
 	private Object data;
@@ -17,9 +28,9 @@ public class RestApiResponse {
 		super();
 	}	
 	
-	public RestApiResponse(RestApiGlobalError globalError) {
+	public RestApiResponse(String globalErrorMsg) {
 		super();
-		this.getGlobalErrors().add(globalError);
+		this.getGlobalErrors().add(globalErrorMsg);
 	}	
 	
 	public boolean hasErrors() {
@@ -35,16 +46,8 @@ public class RestApiResponse {
 		this.fieldErrors = fieldErrors;
 	}
 
-	public List<RestApiGlobalError> getGlobalErrors() {
-		return globalErrors;
-	}
-
-	public void setGlobalErrors(List<RestApiGlobalError> globalErrors) {
-		this.globalErrors = globalErrors;
-	}
-	
 	public void addGlobalError(String errorMessage) {
-		getGlobalErrors().add(new RestApiGlobalError(errorMessage));
+		getGlobalErrors().add(errorMessage);
 	}
 
 	
@@ -81,6 +84,24 @@ public class RestApiResponse {
 		this.data = data;
 	}
 
+	public List<String> getGlobalErrors() {
+		return globalErrors;
+	}
 
+	public void setGlobalErrors(List<String> globalErrors) {
+		this.globalErrors = globalErrors;
+	}
+
+	public List<String> getGlobalSuccessMsgs() {
+		return globalSuccessMsgs;
+	}
+
+	public void setGlobalSuccessMsgs(List<String> globalSuccessMsgs) {
+		this.globalSuccessMsgs = globalSuccessMsgs;
+	}
+
+	public void addGlobalSuccess(String successMessage) {
+		getGlobalSuccessMsgs().add(successMessage);
+	}	
 	
 }

@@ -41,8 +41,12 @@ import com.example.demo.services.ReportManager.ReportProcessType;
 import com.example.demo.services.ReportManager.ReportType;
 import com.example.demo.services.exceptions.CryptoException;
 import com.example.demo.services.models.groups.Group;
+import com.example.demo.services.models.groups.GroupMember;
+import com.example.demo.services.models.groups.GroupMembership;
 import com.example.demo.services.models.persons.User;
+import com.example.demo.services.models.reports.ReportGroupMembership;
 import com.example.demo.services.reports.Report;
+import com.example.demo.services.reports.input.GroupMembershipReportInput;
 import com.example.demo.services.reports.input.GroupReportInput;
 import com.example.demo.services.reports.input.ReportCriteria;
 import com.example.demo.services.reports.input.ReportInput;
@@ -260,7 +264,7 @@ public class ReportController {
 					
 					RestApiResponse r = new RestApiResponse();
 					// r.addGlobalInfoMsg(getMessage(messageSource, "admin.reports.file.sent", new String[]{fileType}));  TODO			
-					r.addGlobalInfoMsg("File Sent");
+					r.addGlobalSuccess("Email Sent");
 					returnJson(response, r);
 				}
 			} else {
@@ -293,6 +297,7 @@ public class ReportController {
 
 				RestApiResponse r = new RestApiResponse();
 				r.setData(reportResponse);
+				r.addGlobalSuccess("Report Created");
 				returnJson(response, r);				
 				
 			} else {
@@ -362,7 +367,7 @@ public class ReportController {
 			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_GROUPS, getReportOutputType(c), new Date());  // TODO
 			return new GroupReportInput(reportCriteria, list);
 		} else if (ReportType.REPORT_USER_GROUPS.getReportCd().equals(c.getReportCd())) {   
-			Group[] groups = externalGroupManager.getGroups(bearerToken);
+			Group[] groups = externalGroupManager.getUsersGroups(bearerToken);
 			List<Group> list = new ArrayList<>(groups.length);
 			for(Group g: groups) {
 				list.add(g);
@@ -370,25 +375,26 @@ public class ReportController {
 
 			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUPS, getReportOutputType(c), new Date());  // TODO
 			return new GroupReportInput(reportCriteria, list);
-		} else if (ReportType.REPORT_USER_GROUP_MEMBERS.getReportCd().equals(c.getReportCd())) {   
-			Group[] groups = externalGroupManager.getGroups(bearerToken);
-			List<Group> list = new ArrayList<>(groups.length);
-			for(Group g: groups) {
-				list.add(g);
+		} else if (ReportType.REPORT_USER_GROUPS_MEMBERSHIPS.getReportCd().equals(c.getReportCd())) {   
+			GroupMembership[] groups = externalGroupManager.getGroupsDetails(bearerToken);
+			List<ReportGroupMembership> list = new ArrayList<>(groups.length);
+			
+			
+			
+			for(GroupMembership g: groups) {
+				for(GroupMember m: g.getActiveManagers()) {
+					list.add(new ReportGroupMembership(g, m));
+				}
+				for(GroupMember m: g.getActiveMembers()) {
+					list.add(new ReportGroupMembership(g, m));
+				}
 			}
+			logger.debug("ReportGroupMembership=" + list);
+			logger.debug("ReportGroupMembership.size()=" + list.size());
 
-			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUP_MEMBERS, getReportOutputType(c), new Date());  // TODO
-			return new GroupReportInput(reportCriteria, list);
-		} else if (ReportType.REPORT_ADMIN_GROUP_MEMBERS.getReportCd().equals(c.getReportCd())) {   
-			Group[] groups = externalGroupManager.getGroups(bearerToken);
-			List<Group> list = new ArrayList<>(groups.length);
-			for(Group g: groups) {
-				list.add(g);
-			}
-
-			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_ADMIN_GROUP_MEMBERS, getReportOutputType(c), new Date());  // TODO
-			return new GroupReportInput(reportCriteria, list);
-		}
+			ReportCriteria reportCriteria = new ReportCriteria(ReportType.REPORT_USER_GROUPS_MEMBERSHIPS, getReportOutputType(c), new Date());  // TODO
+			return new GroupMembershipReportInput(reportCriteria, list);
+		} 
 
 		return null;
     }

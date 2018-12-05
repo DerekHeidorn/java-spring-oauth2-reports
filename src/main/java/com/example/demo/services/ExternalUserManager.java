@@ -40,7 +40,7 @@ public class ExternalUserManager {
 		HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
 		RestTemplate restTemplate = new RestTemplate();
 
-		ResponseEntity<UserResponseWrapper> respEntity = restTemplate.exchange(userApiUrl + "/public/account/profile/", HttpMethod.GET, entity, UserResponseWrapper.class);
+		ResponseEntity<UserResponseWrapper> respEntity = restTemplate.exchange(userApiUrl + "/my/profile", HttpMethod.GET, entity, UserResponseWrapper.class);
 
 		UserResponseWrapper userResponse = respEntity.getBody();
 

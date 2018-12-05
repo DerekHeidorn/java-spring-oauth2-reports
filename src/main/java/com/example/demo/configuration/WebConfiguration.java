@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.LogFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -34,8 +32,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 @ComponentScan("com.example.demo.services")
 @EnableWebMvc
 public class WebConfiguration implements WebMvcConfigurer {
-	
-	private Logger logger = LogManager.getLogger(this.getClass());
 	
     @Bean(name = "messageSource")
     public ResourceBundleMessageSource messageSource() {

@@ -93,9 +93,7 @@ public class ReportManager {
 		// campground reports
     	REPORT_USER_GROUPS("USER_GROUPS" ,"Active User Groups", "user_groups", new String[] {"RPT_ACTIVE_USER_GRP"}),
     	REPORT_USER_GROUPS_MEMBERSHIPS("USER_GROUPS_MEMBERSHIPS" ,"Active User Group Memberships", "group_memberships", new String[] {"RPT_ACTIVE_USER_GRP_MEMBERSHIPS"}),
-    	REPORT_GROUPS("GROUPS" ,"All Public Groups", "groups", new String[] {"RPT_PUBLIC_GROUPS"}),
-    	REPORT_USER_GROUP_MEMBERS("GROUP_MEMBERS" ,"My Group Membership Details", "group_memberships", new String[] {"RPT_GROUP_MEMBERS"}),
-    	REPORT_ADMIN_GROUP_MEMBERS("ADM_GROUP_MEMBERS" ,"Admin Group Membership Details", "group_memberships", new String[] {"RPT_GROUP_MEMBER_DETAILS"});
+    	REPORT_GROUPS("GROUPS" ,"All Public Groups", "groups", new String[] {"RPT_PUBLIC_GROUPS"});
 
     	private static final String reportPath = "/reports/";
     	

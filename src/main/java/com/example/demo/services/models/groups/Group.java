@@ -11,6 +11,9 @@ public class Group {
     
     @JsonProperty("group_name")
 	private String groupName = null;
+    
+    @JsonProperty("group_de")
+	private String groupDescription = null;
 
 	public String getGroupUuid() {
 		return groupUuid;
@@ -26,6 +29,14 @@ public class Group {
 
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
+	}
+
+	public String getGroupDescription() {
+		return groupDescription;
+	}
+
+	public void setGroupDescription(String groupDescription) {
+		this.groupDescription = groupDescription;
 	}
 
 

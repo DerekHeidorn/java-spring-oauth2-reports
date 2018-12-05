@@ -4,13 +4,24 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<field name="groupUuid" class="java.lang.String"/>
 	<field name="groupName" class="java.lang.String"/>
+	<field name="groupDescription" class="java.lang.String"/>
 	<field name="memberAlias" class="java.lang.String"/>
-	<field name="membershipFrom" class="java.lang.String"/>
-	<field name="membershipTo" class="java.lang.String"/>
-	<group name="Group1">
+	<group name="GroupMembers">
 		<groupExpression><![CDATA[$F{groupUuid}]]></groupExpression>
 		<groupHeader>
-			<band height="50"/>
+			<band height="50">
+				<line>
+					<reportElement x="-20" y="20" width="595" height="1" forecolor="#666666" uuid="3edb9c48-04f6-41ff-9151-f59cf0dac45d"/>
+				</line>
+				<textField>
+					<reportElement x="0" y="0" width="150" height="18" uuid="cdf6c30c-421a-4332-9ba9-fce8f0242e44"/>
+					<textFieldExpression><![CDATA[$F{groupName}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="180" y="0" width="270" height="18" uuid="84cdc2ac-f06e-4d69-9bc6-36ce1f1e7354"/>
+					<textFieldExpression><![CDATA[$F{groupDescription}]]></textFieldExpression>
+				</textField>
+			</band>
 		</groupHeader>
 	</group>
 	<background>
@@ -41,17 +52,14 @@
 		<band height="13"/>
 	</pageHeader>
 	<columnHeader>
-		<band height="41">
-			<line>
-				<reportElement x="-20" y="20" width="595" height="1" forecolor="#666666" uuid="3edb9c48-04f6-41ff-9151-f59cf0dac45d"/>
-			</line>
+		<band height="25">
 			<staticText>
 				<reportElement x="20" y="0" width="130" height="20" uuid="8f7e9bcd-7321-4492-baaf-d280479df5c9"/>
-				<text><![CDATA[Group UUID]]></text>
+				<text><![CDATA[Group Name]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="180" y="0" width="270" height="20" uuid="57cc626d-555b-4242-b5da-df40635e2571"/>
-				<text><![CDATA[Group Name]]></text>
+				<text><![CDATA[Group Description]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
@@ -61,12 +69,8 @@
 				<reportElement positionType="FixRelativeToBottom" x="0" y="19" width="555" height="1" uuid="c41e0d0b-fe21-426c-a687-70e845c1a3e8"/>
 			</line>
 			<textField>
-				<reportElement x="0" y="0" width="150" height="18" uuid="cdf6c30c-421a-4332-9ba9-fce8f0242e44"/>
-				<textFieldExpression><![CDATA[$F{groupUuid}]]></textFieldExpression>
-			</textField>
-			<textField>
 				<reportElement x="180" y="0" width="270" height="18" uuid="84cdc2ac-f06e-4d69-9bc6-36ce1f1e7354"/>
-				<textFieldExpression><![CDATA[$F{groupName}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{memberAlias}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
