@@ -6,7 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 
 @SpringBootApplication
-public class ReportsApplication extends ResourceServerConfigurerAdapter {
+public class ReportsApplication extends ResourceServerConfigurerAdapter { // SpringBootServletInitializer
 
 	public static void main(String[] args) {
 		SpringApplication.run(ReportsApplication.class, args);
